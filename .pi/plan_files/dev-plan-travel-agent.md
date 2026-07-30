@@ -24,6 +24,40 @@ Lanes marked **SEQUENTIAL** cannot overlap with anything. Lanes in the same **wa
 
 Realistic concurrency is 3–4 agents. Queuing more produces merge debt faster than throughput.
 
+## Document authority
+
+**This plan owns sequencing. The PRD owns requirements.**
+
+- Lane, order, dependency, file ownership → here
+- What "done" means, FR/US numbers, acceptance criteria → PRD
+- The PRD's story groupings are **thematic, not chronological**. Do not derive build order from them
+- Where the two disagree about *order*, this plan wins. Where they disagree about *behavior*, the PRD wins
+
+**Every story belongs to exactly one lane.** The table below is the authority. If a story appears unassigned, stop and ask — do not open a lane for it.
+
+| Lane | Stories |
+|---|---|
+| S0 | US-001, US-002 — **complete, do not re-run** |
+| S1 | US-003, US-004, US-017, US-018 |
+| A1 | US-012 |
+| A2 | US-013, US-014 |
+| A3 | US-015 |
+| A4 | US-016 |
+| B1 | US-023, US-024 (mocked) |
+| B3 | US-011, US-025 |
+| D1 | US-034, US-035 |
+| S2 | US-019, US-021, US-022 |
+| E-lanes | US-020 (one tool per lane) |
+| C1 | US-006, US-007, US-009, US-010 |
+| S3 | US-026 – US-030 |
+| F1 | US-031, US-032, US-033 |
+| C2 | US-008 |
+| D2 | US-036 |
+| G1 | US-037 |
+| H1 | US-005 |
+
+**Per AGENTS.md §0: agents never run `git worktree add` or create branches. Shahin does.**
+
 ---
 
 ## Why some work cannot parallelize
@@ -38,7 +72,18 @@ Realistic concurrency is 3–4 agents. Queuing more produces merge debt faster t
 
 ---
 
-## S0 — Gates · SEQUENTIAL · human-verified
+## S0 — Gates · ✅ COMPLETE 2026-07-30
+
+**Findings recorded in PRD Appendix D. Do not re-run — live calls are billed and standing rule 1 forbids it.**
+
+**Verdict:** flights pass on both routes. Airbnb passes with a caveat — `booking_url` with dates works; the dated *details* endpoint returns HTTP 500, so availability checking is unreliable.
+
+**Three findings that change downstream lanes:**
+- **100% of flight vendors use POST** (34/34 options). The GET branch in `/handoff` is dead code — keep it, don't test against it
+- **Airbnb dated details 500s.** A2 must treat this as expected failure, not an exception
+- **Flight numbers arrive with a space** (`"LX 243"`) — strip before building `selected_flights_json`
+
+<details><summary>Original gate definition (retained for reference)</summary>
 
 No repository yet. Curl and a browser.
 
@@ -54,6 +99,8 @@ Confirm the managed Postgres offers **PostGIS and pgvector**. Fallback: Neon or 
 Write results into the PRD: GET vs POST per vendor, omkar's real free-tier limit, observed field shapes. These become the first cassettes.
 
 **Gate:** if S0.1 fails, stop. The data layer reopens and everything downstream is wasted.
+
+</details>
 
 ---
 
@@ -96,22 +143,23 @@ Depend on S1 only. Disjoint files. Widest point in the plan.
 
 ### A1 · Flights adapter
 - **Owns:** `app/travel/adapters/flights.py` + cassettes + tests
-- **Notes:** persist `selected_flights_json` (flight numbers + dates), **never** `booking_token`. Capture `price_insights.typical_price_range`. Preserve `post_data` verbatim in `booking_request`.
+- **Notes:** persist `selected_flights_json` (flight numbers + dates), **never** `booking_token`. **Strip whitespace from flight numbers** — SerpApi returns `"LX 243"`, the API needs `"LX243"` (Appendix D). Segment date comes from `departure_airport.time`. Capture `price_insights.typical_price_range`. Preserve `post_data` verbatim. Read `serpapi-google-flights`.
 - **Done when:** US-012
 
 ### A2 · Lodging adapters
 - **Owns:** `adapters/hotels.py`, `adapters/airbnb.py`
-- **Notes:** omkar returns `booking_url` with dates applied. Provider failure returns a structured error so the app degrades to hotels only.
+- **Notes:** omkar returns `booking_url` with dates applied — **capture during search; the details endpoint does not return it.** Dated details calls return HTTP 500 (Appendix D): catch, fall back to undated, mark availability unknown. Reject past check-in dates before calling — the API returns 0 results with no error. `nightly_rate` may be null; derive the stay total from `cost_breakdown[].amount`. Provider failure returns a structured error so the app degrades to hotels only.
+- **Also:** Google Hotels per-vendor `prices[]` entries carry **no booking URL** — hotels do not clear deep-link precision. Surface this rather than engineering around it. Read `serpapi-google-hotels` and `omkar-airbnb` first.
 - **Done when:** US-013, US-014
 
 ### A3 · Places adapter
 - **Owns:** `adapters/places.py`, implements `GeocodePort`
-- **Notes:** `formatted_phone_number` required. No `booking_request` — restaurants are reference tier. 30-day cache ceiling on Places content; `place_id` and coordinates indefinite.
+- **Notes:** Places API **(New)** — `nationalPhoneNumber`, not `formatted_phone_number`; `displayName` for the title, since `name` holds the resource path `places/PLACE_ID`. Field masks mandatory. No `booking_request` — restaurants are reference tier. 30-day cache ceiling on Places content; IDs and coordinates indefinite. **Read the `google-places-api` skill first.**
 - **Done when:** US-015. **Unblocks C1.**
 
 ### A4 · Activities adapter
 - **Owns:** `adapters/activities.py`
-- **Notes:** Tripadvisor `ssrc` per kind; `limit` near 30 or records return partial; handle responses with `locations` instead of `places`; everything flagged `price_basis='uncounted'`.
+- **Notes:** Tripadvisor `ssrc` per kind (**case-sensitive** — `a` is All, `A` is Things to Do); `limit` near 30 or records return partial; handle responses with `locations` instead of `places`. Tripadvisor → `price_basis='uncounted'`. **Google Events sets `price_basis` per item** — `actual` when `extracted_price` is present. Events dates carry no year; resolve against the trip range. Read `serpapi-tripadvisor` and `serpapi-google-events`.
 - **Done when:** US-016
 
 ### Also startable now
@@ -119,6 +167,8 @@ Depend on S1 only. Disjoint files. Widest point in the plan.
 **B1 · Frontend shell** — owns `web/` entirely, depends on the OpenAPI stub only. Chat SSE view, day/slot canvas, actionable vs reference styling, `price_basis` + observation time on every price, mocked API. Done when US-023, US-024 render against mocks.
 
 **D1 · Trips module** — owns `app/trips/`. Lifecycle states, shape metrics as a pure SQL aggregate, confirmation endpoints. Zero agent dependency. Done when US-034, US-035.
+
+**B3 · Backlog + spread views** — owns `web/backlog/`, `web/canvas/spread.*`. Backlog list and map (points as pins, locality items as circles, low-confidence visually distinct) and the in-slot geographic spread warning clustered on `geom` with no Directions calls. Depends on S1 only; runs against seed fixtures. Done when US-011, US-025.
 
 ---
 
@@ -146,10 +196,11 @@ Sequential because the state schema is a single file every future lane would oth
 Auto-discovery makes each tool its own lane. Run three or four at a time: `search_flights`, `search_lodging`, `search_restaurants`, `read_saved_items`, `recall_context`, `propose_itinerary`. `search_activities` after A4.
 
 - **Never touches:** `graph.py`, `state.py`, `registry.py`
+- **Each tool needs its adapter merged first:** `search_flights`←A1, `search_lodging`←A2, `search_restaurants`←A3, `search_activities`←A4. `read_saved_items`, `recall_context` and `propose_itinerary` need only S1.
 - **Done when:** US-020 for that tool; agent selects it correctly against cassettes
 
 ### C1 · Ingestion ladder
-- **Owns:** `app/ingest/` · **Depends on:** S1 + A3
+- **Owns:** `app/ingest/` · **Depends on:** S1 + A3 only — **not** S2. May start as soon as A3 merges, concurrently with Wave A. Listed here for readability, not as a dependency.
 - **Notes:** Stages 1–2 first — POI tag, then caption parse with hashtags extracted *separately* as locality candidates plus trip/backlog priors. **Measure the Stage-1/2 resolution rate before building Stage 3.**
 - **Done when:** US-006, US-007, US-009, US-010
 
@@ -184,7 +235,7 @@ One lane because these four call each other in a fixed order and a partial imple
 |---|---|---|
 | F1 · Budget | `app/budget/` | US-031, US-032, US-033 |
 | C2 · Stage 3 ingestion | `app/ingest/analyze/` | US-008 |
-| A5 · Airbnb + Tripadvisor polish | adapters | — |
+| A5 · Adapter polish | **only** `adapters/airbnb.py`, `adapters/activities.py` — A2 and A4 must be merged and closed first; never run concurrently with them | — |
 | D2 · Conditioning | `app/trips/conditioning.py` | US-036 |
 | G1 · Edit policy | `app/api/items.py` | US-037 |
 | H1 · Shortcut + `/ingest` | `app/api/ingest.py` | US-005 |
@@ -228,3 +279,5 @@ One lane because these four call each other in a fixed order and a partial imple
 5. **Raw payloads persist to Postgres, never into agent context.**
 6. **Tools are agent-chosen; nodes are system-run.** Never expose `reprice` or `resolve_booking_options` as tools.
 7. **Tests ship in the lane that writes the code.**
+8. **Read your provider's skill before writing the adapter.** `serpapi-google-flights`, `serpapi-google-hotels`, `omkar-airbnb`, `google-places-api`, `serpapi-tripadvisor`, `serpapi-google-events`, plus `travel-providers` for the cross-cutting rules. Several fields mean the opposite of their names.
+9. **Never open a worktree or branch.** AGENTS.md §0. Ask Shahin.

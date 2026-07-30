@@ -47,30 +47,32 @@ Terms used throughout, defined once:
 
 ## 3. User Stories
 
-Grouped by milestone. Each is sized for one focused implementation session.
+Grouped by theme, **not by build order**. Each is sized for one focused implementation session.
 
-### Milestone 0.5 — Verification spike (before any code)
+> **Sequencing is owned by `tasks/dev-plan-travel-agent.md`, not by this document.** The groupings below are thematic. The dev plan assigns each story to a lane and defines what must merge first. Where the two appear to disagree about order, the dev plan wins.
 
-#### US-001: Verify flight deep-link precision
-**Description:** As the engineer, I need proof that a flight search can lead to a real payment page, so that the core product promise isn't built on documentation alone.
+### Theme A — Verification spike ✅ COMPLETE (see Appendix D)
 
-**Acceptance Criteria:**
-- [ ] Run a SerpApi Google Flights search for a Dubai-origin long-haul route via curl
-- [ ] Pin one itinerary using `selected_flights_json` and retrieve booking options
-- [ ] For an option with `post_data`, POST it and confirm a real payment page loads for that exact itinerary
-- [ ] Repeat for one US-domestic route (vendor mix differs by region)
-- [ ] Record which vendors return GET links vs POST forms
-
-#### US-002: Verify Airbnb dated booking URL
-**Description:** As the engineer, I need proof that the Airbnb provider returns a link with dates already applied, so lodging doesn't need a fourth provider swap.
+#### US-001: Verify flight deep-link precision — ✅ DONE 2026-07-30
+**Do not re-run. Results in Appendix D.** Re-running costs live billed API calls and violates standing rule 1.
 
 **Acceptance Criteria:**
-- [ ] Run one omkar Airbnb search via curl
-- [ ] Open the returned `booking_url` in a browser
-- [ ] Confirm check-in, check-out and guest count are pre-applied on the listing page
-- [ ] Confirm actual free-tier limit (README states 5,000 and 100 in different places)
+- [x] SerpApi Google Flights search, Dubai-origin long-haul (DXB→LHR)
+- [x] Itinerary pinned via `selected_flights_json`, booking options retrieved
+- [x] `post_data` POSTed; Swiss.com cart page reached with exact flights, dates, class, pax, price
+- [x] US-domestic route repeated (JFK→LAX)
+- [x] Vendor GET/POST split recorded — **100% POST, 0% GET across 34 options**
 
-### Milestone 0 — Skeleton
+#### US-002: Verify Airbnb dated booking URL — ✅ DONE 2026-07-30
+**Do not re-run. Results in Appendix D.**
+
+**Acceptance Criteria:**
+- [x] omkar Airbnb search run
+- [x] `booking_url` opened; dates and guest count pre-applied and visible in Airbnb UI
+- [x] Free tier confirmed: **100/month**. The 5,000 figure is absent from the current README
+- [x] Also found: dated *details* endpoint returns HTTP 500; past dates silently return 0 results
+
+### Theme B — Skeleton
 
 #### US-003: Provision database and cache
 **Acceptance Criteria:**
@@ -96,7 +98,7 @@ Grouped by milestone. Each is sized for one focused implementation session.
 - [ ] Shortcut file created and documented; installs on both phones
 - [ ] Token is configurable and rotatable without code changes
 
-### Milestone 1 — Ingestion
+### Theme C — Ingestion
 
 #### US-006: Stage 1 — POI tag extraction
 **Acceptance Criteria:**
@@ -149,10 +151,13 @@ Grouped by milestone. Each is sized for one focused implementation session.
 - [ ] Low-confidence items visually distinct
 - [ ] Verify in browser using dev-browser skill
 
-### Milestone 2 — Data layer
+### Theme D — Data layer
 
 #### US-012: Flights adapter
+**Spike findings (Appendix D):** flight numbers arrive with a space (`"LX 243"`) and **must have whitespace stripped** before use in `selected_flights_json`. Segment date comes from `departure_airport.time` (`"2027-03-10 01:50"`).
+
 **Acceptance Criteria:**
+- [ ] Flight-number whitespace stripped before building `selected_flights_json`
 - [ ] `search_flights` returns normalized top-N: carrier, flight numbers, times, stops, duration, price USD
 - [ ] Raw payload persisted to Postgres, never returned to the agent
 - [ ] `selected_flights_json` stored per candidate (flight numbers + dates), **not** `booking_token`
@@ -165,15 +170,20 @@ Grouped by milestone. Each is sized for one focused implementation session.
 - [ ] Cached 30 minutes
 
 #### US-014: Airbnb adapter
+**Spike findings (Appendix D):** the **dated details endpoint returns HTTP 500** after ~61s — availability checking with dates is broken upstream. Undated details works. Dated *search* works. Past dates return `total_results: 0` with no error. `nightly_rate` was `null` on 2027-dated responses; the stay total appeared in `cost_breakdown[].amount`.
+
 **Acceptance Criteria:**
 - [ ] Normalized results include `booking_url` with dates and guests applied
-- [ ] `cancellation_terms`, `is_available`, `unavailability_reason` captured
+- [ ] Reject past `check_in` dates before calling — the API returns 0 results with no error
+- [ ] Stay total derived from `cost_breakdown[].amount` when `nightly_rate` is null; never parse the human-readable `label`
+- [ ] Dated details calls treated as expected-failure: catch the 500, fall back to undated details, mark availability unknown
+- [ ] `cancellation_terms`, `is_available`, `unavailability_reason` captured **when the details call succeeds**
 - [ ] Provider failure returns a structured error, not an exception — app degrades to hotels only
 - [ ] Cached 30 minutes
 
 #### US-015: Restaurants adapter
 **Acceptance Criteria:**
-- [ ] Returns name, rating, `price_level`, `formatted_phone_number`, Maps link
+- [ ] Returns `displayName`, rating, `priceLevel`, `nationalPhoneNumber`, Maps link (Places API **New** names — legacy `name` now holds the resource path `places/PLACE_ID`)
 - [ ] No `booking_request` field is produced — restaurants are reference tier
 - [ ] Place details cached 30 days maximum; `place_id` and coordinates cached indefinitely
 
@@ -184,7 +194,8 @@ Grouped by milestone. Each is sized for one focused implementation session.
 - [ ] `place_type='ATTRACTION_PRODUCT'` results link to the specific product page
 - [ ] `limit` capped near 30 to avoid partial records
 - [ ] Handles responses returning `locations` instead of `places`
-- [ ] Results flagged `price_basis='uncounted'`
+- [ ] Tripadvisor results flagged `price_basis='uncounted'` (engine returns no price at all)
+- [ ] Google Events results set `price_basis` **per item**: `actual` when `extracted_price` is present, `uncounted` otherwise
 
 #### US-017: Cache layer
 **Acceptance Criteria:**
@@ -199,7 +210,7 @@ Grouped by milestone. Each is sized for one focused implementation session.
 - [ ] Exceeding returns a structured `quota_exceeded` result, not an exception
 - [ ] Enforced in the adapter, not in agent instructions
 
-### Milestone 3 — Agent
+### Theme E — Agent
 
 #### US-019: LangGraph ReAct graph
 **Acceptance Criteria:**
@@ -252,7 +263,7 @@ Grouped by milestone. Each is sized for one focused implementation session.
 - [ ] No Directions API calls are made
 - [ ] Verify in browser using dev-browser skill
 
-### Milestone 4 — Approval and handoff
+### Theme F — Approval and handoff
 
 #### US-026: Approval state machine
 **Acceptance Criteria:**
@@ -284,7 +295,10 @@ Grouped by milestone. Each is sized for one focused implementation session.
 - [ ] Handoff is impossible without a passing re-price
 
 #### US-030: Handoff endpoint
+**Spike findings (Appendix D):** every vendor tested used POST — 34 of 34 options across both routes. POSTing `post_data` to `https://www.google.com/travel/clk/f` returns HTTP 200 whose body is an HTML `<meta refresh>` redirect, **not** a 3xx. The GET branch is retained but is currently dead code.
+
 **Acceptance Criteria:**
+- [ ] Meta-refresh response body passed through to the browser, not followed server-side
 - [ ] `GET /handoff/{item_id}` re-prices, then serves a minimal auto-submitting page
 - [ ] `post_data` present → POST unchanged, server-side, opaque
 - [ ] `post_data` absent → plain redirect
@@ -292,7 +306,7 @@ Grouped by milestone. Each is sized for one focused implementation session.
 - [ ] Writes a `handoffs` row with resolved price, vendor and method
 - [ ] Verify in browser using dev-browser skill
 
-### Milestone 5 — Budget
+### Theme G — Budget
 
 #### US-031: Budget cap and headroom
 **Acceptance Criteria:**
@@ -314,7 +328,7 @@ Grouped by milestone. Each is sized for one focused implementation session.
 - [ ] Approval of an item that breaches the cap is blocked with a visible explanation
 - [ ] Results are never silently filtered by price
 
-### Milestone 6 — Trip lifecycle and learning
+### Theme H — Trip lifecycle and learning
 
 #### US-034: Lifecycle and confirmation prompt
 **Acceptance Criteria:**
@@ -399,7 +413,7 @@ Grouped by milestone. Each is sized for one focused implementation session.
 - **FR-34:** The system must enforce a per-trip budget cap denominated in USD.
 - **FR-35:** The system must compute headroom as total minus committed minus proposed, where committed is driven by `handed_off_at`.
 - **FR-36:** The system must estimate restaurant costs from `price_level` and label them as estimates.
-- **FR-37:** The system must exclude experiences and events from the budget and state this in the UI.
+- **FR-37:** The system must exclude Tripadvisor experiences and attractions from the budget and state this in the UI. Google Events carrying `extracted_price` are counted as `actual`; events without a price are `uncounted`.
 - **FR-38:** The system must block approval of items breaching the cap while still displaying them in search results.
 
 ### Lifecycle
@@ -466,7 +480,7 @@ Dependency direction: `api → agent → travel/memory/approvals/trips → share
 | Flights | SerpApi Google Flights | `selected_flights_json` pins an itinerary segment-by-segment and returns booking options directly — two calls, and what persists is flight numbers and dates rather than an expiring token. `price_insights` gives typical range free. |
 | Hotels | SerpApi Google Hotels | — |
 | Airbnb | omkar Airbnb Scraper API | `booking_url` carries check-in, check-out and guests. Highest vendor risk in the stack. |
-| Restaurants | Google Places | `formatted_phone_number` from Place Details. 30-day caching ceiling on Places content. |
+| Restaurants | Google Places **(New)** | `nationalPhoneNumber` from Place Details; `displayName` for the title — `name` holds the resource path. Field masks mandatory. 30-day caching ceiling on Places content. |
 | Attractions & experiences | SerpApi Tripadvisor | `ATTRACTION_PRODUCT` is Viator inventory. No price, no availability. Keep `limit` near 30; some queries return `locations` instead of `places`. |
 | Events | SerpApi Google Events | — |
 | Transcripts | SerpApi YouTube Video Transcript | Only if ingestion widens beyond TikTok. |
@@ -525,10 +539,12 @@ Changing the description LLM changes phrasing, so old and new descriptions embed
 
 ## 9. Open Questions
 
-1. **Optimistic concurrency (`updated_at`) is recommended but unapproved.** The two users have agreed to coordinate edits socially, but the agent is a third writer that rewrites `itinerary_items` on veto revision and `stale` re-search. Roughly five lines converts a silent lost update into a "this changed, reload" message. Include it or explicitly accept the risk.
+1. **Optimistic concurrency (`updated_at`) — RESOLVED: build it.** The dev plan's S1 trunk includes the column, so this is decided; the note below is retained as rationale.
+
+   *Original framing:* recommended but unapproved. The two users have agreed to coordinate edits socially, but the agent is a third writer that rewrites `itinerary_items` on veto revision and `stale` re-search. Roughly five lines converts a silent lost update into a "this changed, reload" message. Include it or explicitly accept the risk.
 2. **Which OCR, ASR and description models?** Deferred pending a bake-off. Rank on dense scene-text OCR over stylized fonts, cost per video-minute rather than per token, and structured-output reliability under a forced schema — general multimodal benchmarks do not isolate the capability that matters here.
 3. **Experience cost blindness.** Museum- or tour-heavy trips can pass the cap and cost materially more. If it bites, cap *count* (e.g. two paid activities per day) rather than reintroducing invented prices.
-4. **omkar durability.** Four GitHub stars, no forks, WhatsApp support, and a README stating two different free-tier limits. Behind an adapter at $16/month with fallback to hotels, but do not build anything assuming it persists.
+4. **omkar durability.** Free tier confirmed at 100/month (Appendix D), not the 5,000 once claimed. Small vendor: WhatsApp support, no status page, and a dated details endpoint that 500s. Behind an adapter at $16/month with fallback to hotels — do not build anything assuming it persists.
 5. **Ingestion beyond TikTok.** The YouTube transcript rung only pays off if the sources widen. Unresolved whether they should.
 6. **Conditioning ossification.** Recency weighting and variation prompts are specified, but whether they are sufficient is only observable after several trips.
 
@@ -633,7 +649,7 @@ itinerary_items (
   price_basis,               -- actual | price_level_estimate | uncounted
   handed_off_at NULL,
   diverged BOOL, original_snapshot JSONB,
-  updated_at,                -- see Open Question 1
+  updated_at,                -- optimistic concurrency guard; agent is a third writer
   created_at
 )
 
