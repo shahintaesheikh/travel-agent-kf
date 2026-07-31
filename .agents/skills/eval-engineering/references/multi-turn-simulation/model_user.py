@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import json
-from typing import Awaitable, Callable, Mapping
+from collections.abc import Awaitable, Callable, Mapping
 
 if __package__:
     from .runner import SimulatorProtocolError, Turn, UserTurn, parse_user_turn

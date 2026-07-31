@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta, timezone
-from typing import Mapping, Protocol
+from datetime import UTC, datetime, timedelta
+from typing import Protocol
 
 from harbor.agents.base import BaseAgent
 from harbor.environments.base import BaseEnvironment
@@ -211,7 +212,7 @@ class MultiTurnHarborAgent(BaseAgent):
         last_at: datetime | None = None
         steps: list[Step] = []
         for index, turn in enumerate(turns, 1):
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             if last_at is not None and now <= last_at:
                 now = last_at + timedelta(microseconds=1)
             last_at = now

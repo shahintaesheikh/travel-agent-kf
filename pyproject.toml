@@ -1,0 +1,134 @@
+[project]
+name = "travel-agent"
+version = "0.1.0"
+description = "Private two-user trip planning agent — LangGraph, FastAPI, Postgres/PostGIS/pgvector"
+requires-python = ">=3.11"          # LangGraph 1.x dropped 3.9; 3.11 for the asyncio ergonomics
+
+dependencies = [
+    # ── Web service ────────────────────────────────────────────────────────
+    "fastapi>=0.141",
+    "uvicorn[standard]>=0.52",       # pulls uvloop, httptools, watchfiles, websockets
+    "python-multipart>=0.0.32",      # form parsing for the /handoff auto-submit page
+    "itsdangerous>=2.2",             # signed session cookies (US-004)
+    "sse-starlette>=3.4",            # SSE chat streaming (US-023)
+
+    # ── Agent ──────────────────────────────────────────────────────────────
+    # These are version-locked to each other. A langgraph / langgraph-prebuilt
+    # mismatch broke builds in early 2026 — if imports fail, pin all of them to
+    # the same minor release before debugging anything else.
+    "langgraph>=1.1,<2",
+    "langgraph-checkpoint>=3.0,<4",
+    "langgraph-checkpoint-postgres>=3.0,<4",   # never MemorySaver — veto windows
+    "langchain-core>=1.5",                     # 1.x since late 2025, not 0.3.x
+    "langchain-anthropic>=1.5",
+
+    # ── Database ───────────────────────────────────────────────────────────
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg>=0.31",                 # async driver for the app
+    "psycopg[binary]>=3.2",          # sync driver — Alembic and the LangGraph
+                                     # Postgres checkpointer both require it
+    "alembic>=1.18",
+    "geoalchemy2>=0.20",             # PostGIS GEOGRAPHY (saved_items.geom)
+    "pgvector>=0.5",                 # vibe_embedding, the only vector column
+
+    # ── Cache, quota, worker ───────────────────────────────────────────────
+    "redis>=5.3",
+    "arq>=0.28",                     # ingestion jobs, veto timers, trip close
+
+    # ── Config and types ───────────────────────────────────────────────────
+    "pydantic>=2.13",
+    "pydantic-settings>=2.14",
+
+    # ── Providers ──────────────────────────────────────────────────────────
+    # One HTTP client for all four providers, deliberately. The cassette layer
+    # intercepts at the httpx transport, so a single client means one
+    # interception point rather than one shim per vendor SDK.
+    "httpx>=0.28",
+
+    # ── Ingestion ──────────────────────────────────────────────────────────
+    "yt-dlp>=2026.7",                # POI tag + download. Update often — breaks
+                                     # whenever TikTok changes its player
+    "pillow>=11.0",
+    "imagehash>=4.3",                # perceptual dedup of sampled frames
+    "av>=13.0",                      # frame extraction without shelling to ffmpeg
+
+    # ── Embeddings ─────────────────────────────────────────────────────────
+    "openai>=2.0",                   # text-embedding-3-*; drop if embedding
+                                     # through a provider you already have
+
+    # ── Observability ──────────────────────────────────────────────────────
+    "structlog>=26.0",
+]
+
+[project.optional-dependencies]
+# Deferred by PRD Open Question 2 — model choice is the lane C2 bake-off.
+# Defined as extras rather than pinned, so a bake-off worktree installs one
+# path without committing the project to it:
+#   uv sync --extra asr-local --extra ocr-paddle
+#
+# Rank candidates on dense scene-text OCR over stylized fonts, cost per
+# video-minute, and structured-output reliability — not general multimodal
+# benchmarks, which don't isolate the capability that matters here.
+asr-local  = ["faster-whisper>=1.1"]       # CTranslate2, fast, CPU-viable
+asr-ref    = ["openai-whisper>=20240930"]  # reference impl, heavier
+ocr-paddle = ["paddleocr>=2.9"]            # strong on stylized text, heavy install
+ocr-easy   = ["easyocr>=1.7"]              # lighter, weaker on decorative fonts
+ocr-tess   = ["pytesseract>=0.3"]          # needs the tesseract binary present
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0",
+    "pytest-asyncio>=1.4",
+    "pytest-env>=1.1",           # required for the [tool.pytest] env setting below
+    "ruff>=0.16",
+]
+
+# ── Build ──────────────────────────────────────────────────────────────────
+# The project installs itself so `from app.models import ...` resolves from any
+# working directory. That matters with worktrees, where agents run from several
+# roots at once.
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+# ── uv ─────────────────────────────────────────────────────────────────────
+[tool.uv]
+default-groups = ["dev"]         # `uv sync` gets test + lint without a flag
+
+# ── Ruff ───────────────────────────────────────────────────────────────────
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["alembic/versions"]   # generated migrations aren't hand-written
+
+[tool.ruff.lint]
+select = [
+    "E", "W",    # pycodestyle
+    "F",         # pyflakes
+    "I",         # import sorting
+    "B",         # bugbear
+    "UP",        # pyupgrade
+    "ASYNC",     # async antipatterns — worth having in a codebase this async
+    "T20",       # no stray print(); structlog is the logging path
+]
+ignore = ["E501"]   # line length is formatter's job, not lint's
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+"scripts/seed.py" = ["T201"]
+
+# ── Pytest ─────────────────────────────────────────────────────────────────
+# Tripwires, not a suite — roughly a dozen tests. Money path plus adapter
+# normalizers. Tests ship in the lane that writes the code.
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-q --strict-markers"
+markers = [
+    "money: handoff, reprice, budget — the path where a bug costs real dollars",
+    "normalizer: adapter mapping against recorded cassettes",
+]
+env = ["PROVIDER_MODE=replay"]   # never let a test hit a live provider
