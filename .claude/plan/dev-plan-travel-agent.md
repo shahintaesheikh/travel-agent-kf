@@ -104,7 +104,7 @@ Write results into the PRD: GET vs POST per vendor, omkar's real free-tier limit
 
 ---
 
-## S1 — Trunk · SEQUENTIAL · one agent
+## S1 — Trunk · SEQUENTIAL · one agent ✅ COMPLETE 2026-07-31
 
 Everything below imports from here. This is where merge-friendliness is designed in.
 
@@ -139,6 +139,8 @@ scripts/seed.py
 
 ## Wave A — 4 parallel lanes
 
+#### Adapters – sanitize and return data so that 3rd-party API return values work within our application. 
+
 Depend on S1 only. Disjoint files. Widest point in the plan.
 
 ### A1 · Flights adapter
@@ -172,11 +174,13 @@ Depend on S1 only. Disjoint files. Widest point in the plan.
 
 ---
 
-## S2 — Agent core · SEQUENTIAL
+## S2-A — Agent core · SEQUENTIAL
 
 **Depends on:** S1 + A1 + A3 merged.
 
 **Owns:** `app/agent/graph.py`, `state.py`, `nodes/`
+
+#### Initialize graph nodes, state schema, and checkpointer
 
 Sequential because the state schema is a single file every future lane would otherwise edit, and LangGraph's parallel-write semantics punish concurrent additions.
 
@@ -185,6 +189,60 @@ Sequential because the state schema is a single file every future lane would oth
 - Reducers on any state key parallel nodes can write
 - `load_traits` (every turn, plain SQL, all rows), `extract_memories` (post-turn)
 - **Freeze the state schema at the end of this lane.** Veto windows keep checkpoints alive up to 12 hours; a schema change mid-window breaks the resume.
+
+## S2-B – Observability — structlog around LLM calls
+
+No external tracing vendor. Checkpoints already hold state; these lines hold what
+checkpoints can't, and act as the index into them.
+
+**The call site**
+
+    import time, structlog
+    log = structlog.get_logger()
+
+    started = time.perf_counter()
+    try:
+        resp = await llm.ainvoke(messages)
+    except Exception as exc:
+        log.error("llm_call_failed",
+            thread_id=config["configurable"]["thread_id"],
+            checkpoint_id=config["configurable"].get("checkpoint_id"),
+            latency_ms=round((time.perf_counter() - started) * 1000),
+            error=str(exc), error_type=type(exc).__name__)
+        raise
+
+    log.info("llm_call",
+        thread_id=config["configurable"]["thread_id"],
+        checkpoint_id=config["configurable"].get("checkpoint_id"),
+        tools_chosen=[t["name"] for t in getattr(resp, "tool_calls", [])],
+        model=resp.response_metadata.get("model"),
+        tokens_in=resp.usage_metadata.get("input_tokens"),
+        tokens_out=resp.usage_metadata.get("output_tokens"),
+        latency_ms=round((time.perf_counter() - started) * 1000))
+
+**Rules**
+
+- **Tool names only, never arguments.** Arguments carry destinations, dates, and
+  preferences. The names answer "what did it decide"; the arguments are in the checkpoint.
+- **`checkpoint_id` is the join key.** Grep logs for the anomaly, then `SELECT` the
+  checkpoint for full state. Without it the log line is unactionable.
+- **Log the failure before re-raising.** A raised call may never checkpoint — this line is
+  the only record that turn happened.
+- **Never let logging break a turn.** Use `.get()` on metadata dicts; provider response
+  shapes vary and `usage_metadata` is not guaranteed.
+- **Reuse the existing correlation ID** from `shared/` rather than inventing a second one.
+
+**Done when**
+- [ ] A turn produces exactly one `llm_call` line with all fields populated
+- [ ] A forced failure produces `llm_call_failed` and the exception still propagates
+- [ ] `grep` across a session's logs surfaces no message content
+- [ ] A logged `checkpoint_id` resolves to a real checkpoint row
+
+**Not in scope**
+- Prompt text in logs — it's in the checkpoint
+- Tool arguments
+- Tracing outside the agent; adapters already log
+  `{trace_id, provider, tool, args_hash, cache_hit, quota_remaining, latency_ms}`
 
 **Done when:** US-019, US-021, US-022, and a conversation resumes after a process restart.
 

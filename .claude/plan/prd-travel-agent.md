@@ -234,6 +234,22 @@ Grouped by theme, **not by build order**. Each is sized for one focused implemen
 - [ ] Every memory carries `owner_id` and is presented with its owner
 
 #### US-022: Post-turn memory extraction
+
+#### US-022a: Agent call logging
+**Description:** As the engineer, I want each LLM call logged with its decision and cost
+so I can find an anomalous turn and pull the full state from its checkpoint.
+
+**Acceptance Criteria:**
+- [ ] Every LLM call emits one structlog line with `thread_id`, `checkpoint_id`,
+      `tools_chosen`, `model`, `tokens_in`, `tokens_out`, `latency_ms`
+- [ ] A failed call emits the same line plus the exception, before the error propagates
+- [ ] No message content, prompt text, or tool arguments appear in any log line
+- [ ] `checkpoint_id` is present on every line and resolves to a real checkpoint
+- [ ] Logging failure never breaks a turn
+
+#### US-022b: User memory logging
+**Description:** I want each trait or intent deemed worthy written to a db to be queried later when necessary. 
+
 **Acceptance Criteria:**
 - [ ] Runs after each turn; writes `trait` or `intent` memories
 - [ ] Deduplicates against existing memories for that owner
@@ -385,6 +401,11 @@ Grouped by theme, **not by build order**. Each is sized for one focused implemen
 - **FR-14:** The system must return normalized top-N results to the agent and persist raw payloads outside the conversation context.
 - **FR-15:** The system must cap outbound provider calls at 6 per turn and 40 per trip-hour, enforced in the adapter.
 - **FR-16:** The system must return a structured `quota_exceeded` result rather than raising when limits are hit.
+- **FR-16a:** The system must log one structured line per LLM call carrying the chosen
+  tools, model, token counts, latency, and the `checkpoint_id` needed to retrieve full
+  state. Message content must not be logged.
+- **FR-16b:** The system must log LLM call failures with the same fields plus the
+  exception, since a failed step may not produce a checkpoint.
 
 ### Itinerary
 - **FR-17:** The system must assign each item a day and a coarse slot of morning, afternoon or evening.
@@ -529,6 +550,8 @@ Changing the description LLM changes phrasing, so old and new descriptions embed
 - 0 hours in which the provider quota ceiling was exceeded
 - 0 booking-option resolutions for items that never reached `item_pending`
 - 0 cases where editing a handed-off item changed committed spend
+- 0 log lines containing message content or prompt text
+- Every logged LLM call resolves to a retrievable checkpoint
 
 **Learning.**
 - By the third confirmed trip, conditioning examples load on planning turns and shape metrics differ measurably between trips
