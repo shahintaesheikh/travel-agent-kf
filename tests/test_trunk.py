@@ -19,10 +19,13 @@ from pydantic import ValidationError
 
 from app.models.types import (
     BookingRequest,
+    NormalizedActivity,
     NormalizedFlight,
     NormalizedLodging,
     Priced,
     PriceStatus,
+    PriceUnitMismatch,
+    price_drift,
 )
 from app.shared import cache as cache_mod
 from app.shared import redis_client
@@ -392,6 +395,7 @@ class TestPriced:
             "ref": "LX243/2027-03-10",
             "status": PriceStatus.available,
             "price_usd": Decimal("640.00"),
+            "price_unit": "total",
             "observed_at": datetime.now(UTC),
         }
         return Priced(**{**fields, **kw})
@@ -407,6 +411,7 @@ class TestPriced:
         gone = Priced(
             ref="LX243/2027-03-10",
             status=PriceStatus.unavailable,
+            price_unit="total",
             observed_at=datetime.now(UTC),
             unavailable_reason="itinerary no longer sold",
         )
@@ -436,6 +441,140 @@ class TestPriced:
     def test_observed_at_is_utc_aware(self) -> None:
         """System timestamps are UTC-aware — AGENTS.md §2."""
         assert self._priced().observed_at.tzinfo is not None
+
+    def test_price_unit_is_required(self) -> None:
+        """No default. An unlabelled price is the defect — flights store a
+        total and lodging per-night, and one field name cannot silently mean
+        both."""
+        with pytest.raises(ValidationError):
+            Priced(
+                ref="tokyo-hotel-1",
+                status=PriceStatus.available,
+                price_usd=Decimal("150.00"),
+                observed_at=datetime.now(UTC),
+            )
+
+    def test_price_unit_is_required_even_when_unavailable(self) -> None:
+        """The unit is knowable whether or not a price came back. Making it
+        conditional reintroduces the defect on the path that matters most."""
+        with pytest.raises(ValidationError):
+            Priced(
+                ref="tokyo-hotel-1",
+                status=PriceStatus.unavailable,
+                observed_at=datetime.now(UTC),
+                unavailable_reason="listing withdrawn",
+            )
+
+
+# ── Re-price refuses to compare across units ────────────────────────────────
+
+
+class TestPriceDrift:
+    def _priced(self, unit: str, price: str = "150.00", **kw) -> Priced:
+        fields = {
+            "ref": "tokyo-hotel-1",
+            "status": PriceStatus.available,
+            "price_usd": Decimal(price),
+            "price_unit": unit,
+            "observed_at": datetime.now(UTC),
+        }
+        return Priced(**{**fields, **kw})
+
+    def test_per_night_against_a_stay_total_raises(self) -> None:
+        """The defect this exists for: a 4-night stay stored at $150/night,
+        re-priced against the $600 total, computes a 300% "move" and marks a
+        perfectly fine listing stale on the first check."""
+        with pytest.raises(PriceUnitMismatch, match="per_night"):
+            price_drift(self._priced("per_night"), Decimal("600.00"), "total")
+
+    def test_total_against_a_per_night_price_raises(self) -> None:
+        """Mismatch in either direction — the flight side is just as wrong."""
+        with pytest.raises(PriceUnitMismatch):
+            price_drift(self._priced("total", "640.00"), Decimal("160.00"), "per_night")
+
+    def test_matching_units_compute_signed_drift(self) -> None:
+        rose = price_drift(self._priced("per_night", "165.00"), Decimal("150.00"), "per_night")
+        assert rose == Decimal("0.1")
+        fell = price_drift(self._priced("per_night", "135.00"), Decimal("150.00"), "per_night")
+        assert fell < 0
+
+    def test_unchanged_price_has_zero_drift(self) -> None:
+        assert price_drift(self._priced("total", "640.00"), Decimal("640.00"), "total") == 0
+
+    def test_unavailable_has_no_price_to_compare(self) -> None:
+        """Check `status` before comparing — `unavailable` is not a price of
+        zero, and a caller reaching here has skipped the gate."""
+        gone = Priced(
+            ref="tokyo-hotel-1",
+            status=PriceStatus.unavailable,
+            price_unit="per_night",
+            observed_at=datetime.now(UTC),
+            unavailable_reason="listing withdrawn",
+        )
+        with pytest.raises(ValueError, match="no price"):
+            price_drift(gone, Decimal("150.00"), "per_night")
+
+    def test_mismatch_is_raised_not_returned(self) -> None:
+        """Unlike QuotaExceeded, which is an expected outcome returned as a
+        value. A cross-unit comparison is a caller bug whose result looks
+        entirely plausible — silence is the whole hazard."""
+        assert issubclass(PriceUnitMismatch, Exception)
+
+
+# ── NormalizedActivity prices events without fabricating one ────────────────
+
+
+class TestNormalizedActivityPricing:
+    def _activity(self, **kw) -> NormalizedActivity:
+        fields = {
+            "external_id": "ev-1",
+            "name": "Yayoi Kusama at Mori Art Museum",
+            "rating": None,
+            "kind": "event",
+            "link": "https://example.com/events/ev-1",
+        }
+        return NormalizedActivity(**{**fields, **kw})
+
+    def test_priced_event_normalizes_without_raising(self) -> None:
+        """F8, the live crash: a Google Events record carrying
+        `extracted_price` used to fail validation against a single-value
+        Literal, so a real search returning a $45 ticket crashed the adapter."""
+        event = self._activity(price_basis="actual", price_usd=Decimal("45.00"))
+        assert event.price_basis == "actual"
+        assert event.price_usd == Decimal("45.00")
+
+    def test_unpriced_event_is_uncounted_not_zero(self) -> None:
+        """An event without `extracted_price` is uncounted. Zero would be a
+        fabricated price that the budget silently believes."""
+        event = self._activity()
+        assert event.price_basis == "uncounted"
+        assert event.price_usd is None
+
+    def test_tripadvisor_defaults_to_uncounted(self) -> None:
+        """The engine returns no price at all for experiences or attractions,
+        and must never be given one — FR-37 excludes them from the budget."""
+        experience = self._activity(external_id="ta-1", kind="experience", rating=4.5)
+        assert experience.price_basis == "uncounted"
+        assert experience.price_usd is None
+
+    def test_price_without_actual_basis_is_rejected(self) -> None:
+        """Non-null price ⟺ `actual`, enforced by the model rather than by
+        convention. An uncounted item is excluded from the budget, so a price
+        here would be counted by nobody and trusted by somebody."""
+        with pytest.raises(ValidationError):
+            self._activity(price_basis="uncounted", price_usd=Decimal("45.00"))
+
+    def test_actual_basis_without_a_price_is_rejected(self) -> None:
+        """The other half of the biconditional. `actual` means a real observed
+        price, not a missing one."""
+        with pytest.raises(ValidationError):
+            self._activity(price_basis="actual")
+
+    def test_price_level_estimate_is_not_an_activity_basis(self) -> None:
+        """It belongs to NormalizedPlace.price_level; activities have no path
+        to it."""
+        with pytest.raises(ValidationError):
+            self._activity(price_basis="price_level_estimate", price_usd=Decimal("45.00"))
 
 
 # ── Toy adapter satisfies ProviderAdapter end to end ────────────────────────
@@ -475,6 +614,28 @@ class TestProviderAdapterProtocol:
         assert isinstance(lodging, NormalizedLodging)
         assert lodging.name == "Toy Hotel"
         assert lodging.price_per_night_usd == Decimal("150.00")
+
+    async def test_toy_flight_reprice_returns_priced_in_totals(self) -> None:
+        """F10: the toy adapter is the reference example later lanes copy
+        from, and it declared `-> dict` after the Protocol was typed against
+        `Priced`. `runtime_checkable` only checks method presence, so nothing
+        failed — a wrong example propagates silently."""
+        priced = await ToyFlightAdapter().reprice("TA123/2027-04-01")
+        assert isinstance(priced, Priced)
+        assert priced.price_unit == "total"
+        assert priced.ref == "TA123/2027-04-01"
+        assert priced.observed_at.tzinfo is not None
+
+    async def test_toy_lodging_reprice_matches_the_stored_price_unit(self) -> None:
+        """Lodging stores per-night, so its re-price must too — comparable to
+        `NormalizedLodging.price_per_night_usd` without conversion."""
+        adapter = ToyLodgingAdapter()
+        lodging = (await adapter.search(SearchQuery(destination="Tokyo")))[0]
+        priced = await adapter.reprice(lodging.property_id)
+
+        assert isinstance(priced, Priced)
+        assert priced.price_unit == "per_night"
+        assert price_drift(priced, lodging.price_per_night_usd, "per_night") == 0
 
     async def test_selected_flights_json_not_booking_token(self) -> None:
         """Persist flight numbers and dates — durable and replayable. Not an

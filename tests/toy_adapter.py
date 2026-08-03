@@ -9,7 +9,13 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from app.models.types import BookingRequest, NormalizedFlight, NormalizedLodging
+from app.models.types import (
+    BookingRequest,
+    NormalizedFlight,
+    NormalizedLodging,
+    Priced,
+    PriceStatus,
+)
 from app.shared.quota import QuotaExceeded
 from app.travel.base import SearchQuery
 
@@ -21,9 +27,7 @@ class ToyFlightAdapter:
     end to end before any real adapter is written.
     """
 
-    async def search(
-        self, q: SearchQuery
-    ) -> list[NormalizedFlight] | QuotaExceeded:
+    async def search(self, q: SearchQuery) -> list[NormalizedFlight] | QuotaExceeded:
         now = datetime.now(UTC)
         return [
             NormalizedFlight(
@@ -60,16 +64,29 @@ class ToyFlightAdapter:
             vendor="toyair",
         )
 
-    async def reprice(self, ref: str) -> dict:
-        return {"price_usd": "299.00", "available": True}
+    async def reprice(self, ref: str) -> Priced:
+        # Flights are sold as a trip total, and the booking-options response
+        # carries fresh post_data alongside the price — so a real flight
+        # adapter returns both here rather than reusing the payload captured
+        # at item_pending.
+        return Priced(
+            ref=ref,
+            status=PriceStatus.available,
+            price_usd=Decimal("299.00"),
+            price_unit="total",
+            observed_at=datetime.now(UTC),
+            booking_request=BookingRequest(
+                url="https://example.com/book/TA123",
+                post_data={"flight": "TA123", "passengers": 1},
+                vendor="toyair",
+            ),
+        )
 
 
 class ToyLodgingAdapter:
     """Toy adapter that returns canned lodging data."""
 
-    async def search(
-        self, q: SearchQuery
-    ) -> list[NormalizedLodging] | QuotaExceeded:
+    async def search(self, q: SearchQuery) -> list[NormalizedLodging] | QuotaExceeded:
         now = datetime.now(UTC)
         return [
             NormalizedLodging(
@@ -94,5 +111,14 @@ class ToyLodgingAdapter:
             vendor="toyhotels",
         )
 
-    async def reprice(self, ref: str) -> dict:
-        return {"price_usd": "150.00", "available": True}
+    async def reprice(self, ref: str) -> Priced:
+        # per_night, matching NormalizedLodging.price_per_night_usd — the
+        # stored price this gets compared against. A stay total here would
+        # read as a 4x move and mark the item stale on the first check.
+        return Priced(
+            ref=ref,
+            status=PriceStatus.available,
+            price_usd=Decimal("150.00"),
+            price_unit="per_night",
+            observed_at=datetime.now(UTC),
+        )
