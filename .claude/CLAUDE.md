@@ -92,7 +92,10 @@ class NormalizedActivity(BaseModel):
     rating: float | None
     kind: Literal["attraction", "experience", "event", "poi"]
     link: str
-    price_basis: Literal["uncounted"] = "uncounted"
+    price_basis: Literal["actual", "uncounted"] = "uncounted"
+    price_usd: Decimal | None = None            # non-null iff basis is "actual"
+
+PriceUnit = Literal["total", "per_night"]
 
 class PriceStatus(StrEnum):
     available          = "available"            # one booking, one link
@@ -103,9 +106,13 @@ class Priced(BaseModel):                        # frozen
     ref: str
     status: PriceStatus
     price_usd: Decimal | None = None            # None when unavailable — never invented
+    price_unit: PriceUnit                       # required, no default
     observed_at: datetime                       # UTC-aware
     booking_request: BookingRequest | None = None
     unavailable_reason: str | None = None
+
+def price_drift(priced: Priced, stored_price_usd: Decimal,
+                stored_price_unit: PriceUnit) -> Decimal: ...
 ```
 
 `PriceStatus` is an enum rather than two booleans on purpose. `available` and
@@ -120,6 +127,28 @@ fetch a valid payload, discard it, and the handoff would POST the copy captured 
 `item_pending` — up to a 12-hour veto window earlier. It is None for Airbnb (dated
 GET link) and Google Hotels (no per-vendor booking URL); callers fall back to the
 stored `booking_request`.
+
+`Priced.price_unit` is required with no default, because an unlabelled price is the
+defect. Flights store a trip total and lodging stores per-night, and one field name
+cannot silently mean both. Putting a stay total in a lodging `Priced` reads as an N×
+price move and marks every lodging item `stale` on the first check — and the same
+figure summed into FR-35's headroom is a money bug landing exactly where nobody
+looks. **Flights → `total`. Lodging → `per_night`.** Where a stay total exists, keep
+it in the adapter's log or normalized payload, not in `Priced`.
+
+Compare only through `price_drift`, which raises `PriceUnitMismatch` before comparing
+across units rather than returning a plausible-looking false drift. It is required
+even when `status is unavailable`: the unit is a property of how the item is priced,
+knowable whether or not a price came back.
+
+`NormalizedActivity.price_basis` is a **per-item** determination (FR-37, US-016), not
+a per-provider one. Google Events sets `actual` only when `extracted_price` is
+present; absent → `uncounted`, never zero. Tripadvisor returns no price at all and
+keeps the `uncounted` default. `price_usd` is non-null **if and only if**
+`price_basis == "actual"`, enforced by a model validator rather than by convention —
+an `uncounted` item is excluded from the budget, so a price on one would be counted
+by nobody and trusted by somebody. `price_level_estimate` is not an activity basis;
+it belongs to `NormalizedPlace.price_level`.
 
 ### Datetimes: provider-local naive, system UTC-aware
 
@@ -236,6 +265,10 @@ The reasons matter more than the rules — they generalize to cases not listed h
 **Don't let the agent decide when to stop searching.** Fan-out limits live in the adapter.
 
 **Don't fabricate prices.** Experiences have no price and are excluded from the budget. An invented estimate is worse than an honest gap.
+
+**A re-price that cannot honestly price the requested dates must fail, not approximate.** Return the error; the absence of a `Priced` is the signal. Airbnb's dated details endpoint 500s and the undated response is base pricing — publishing that as a re-price puts a fabricated number on the money path. Neither status is available to you: `available` quotes the wrong dates, `unavailable` cancels a stay that is probably fine. D7 makes re-price the gate before handoff, so a failed re-price correctly *blocks* it rather than passing it. Surface the reason to the user, not a generic failure.
+
+**Don't compare prices across units.** Use `price_drift`; it raises `PriceUnitMismatch` rather than computing a false drift. A per-night quote checked against a stay total is an N× "move" that reads as a real one and marks a fine listing `stale`. See §2.
 
 **Don't save an item with null geometry.** Locality-only items geocode to a centroid and radius; without geometry they never return from spatial queries and rot in the backlog.
 
