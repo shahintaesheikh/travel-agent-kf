@@ -93,7 +93,51 @@ class NormalizedActivity(BaseModel):
     kind: Literal["attraction", "experience", "event", "poi"]
     link: str
     price_basis: Literal["uncounted"] = "uncounted"
+
+class PriceStatus(StrEnum):
+    available          = "available"            # one booking, one link
+    split_options_only = "split_options_only"   # exists and is priced, needs two bookings
+    unavailable        = "unavailable"          # gone; price_usd is None
+
+class Priced(BaseModel):                        # frozen
+    ref: str
+    status: PriceStatus
+    price_usd: Decimal | None = None            # None when unavailable — never invented
+    observed_at: datetime                       # UTC-aware
+    booking_request: BookingRequest | None = None
+    unavailable_reason: str | None = None
 ```
+
+`PriceStatus` is an enum rather than two booleans on purpose. `available` and
+`split_options_only` both mean the itinerary exists and has a price, but only the
+first can become a handoff — and `if priced.still_available: hand_off()` reads as
+correct while being wrong. Three cases force the reader to handle the third.
+
+`Priced.booking_request` carries a currently-valid way to charge the selection when
+the provider returned one. A flight re-price POSTs `selected_flights_json` and gets
+fresh `post_data` back in the same response; without this field the adapter would
+fetch a valid payload, discard it, and the handoff would POST the copy captured at
+`item_pending` — up to a 12-hour veto window earlier. It is None for Airbnb (dated
+GET link) and Google Hotels (no per-vendor booking URL); callers fall back to the
+stored `booking_request`.
+
+### Datetimes: provider-local naive, system UTC-aware
+
+**Rule, not observation. Follow it in every adapter.**
+
+- **Provider-local times stay naive** — `depart`, `arrive`, and any other wall-clock
+  time a provider reports. SerpApi returns local airport time with no offset
+  (`"2027-03-10 01:50"`).
+- **System timestamps are UTC-aware** — `observed_at`, `handed_off_at`, `resolved_at`,
+  anything the app itself stamps. Use `datetime.now(UTC)`.
+
+The reason: the source carries no offset, and a fabricated one is worse than a naive
+datetime — it looks authoritative and is wrong, and 01:50 at DXB is not a moment in
+time until you know which airport. Naive is honest about what the provider said.
+
+The hazard is mixing them. Comparing a naive datetime to an aware one raises
+`TypeError` at runtime, in whichever lane touches both first. Never compare or
+subtract across the two classes; localize explicitly at the boundary if you need to.
 
 ### Adapter contract
 
@@ -255,14 +299,45 @@ Tripwires, not a suite. Roughly a dozen tests total. **Tests ship in the lane th
 
 ## 10. Commands
 
+**`uv` is required.** Dev dependencies live in `[dependency-groups]` (PEP 735), which
+`uv sync` installs via `[tool.uv] default-groups`. `pip install -e ".[dev]"` does *not*
+work — there is no `dev` extra — and `pip --group` needs pip ≥ 25.1. Install uv first:
+
 ```bash
-uv sync                          # install
+brew install uv                  # or: curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+```bash
+uv sync                          # install (creates .venv)
 docker compose up -d             # local postgres + redis
-alembic upgrade head             # migrate
-python scripts/seed.py           # ~20 saved_items for agent development
-pytest                           # tripwires
-ruff check . && ruff format .    # lint
-PROVIDER_MODE=replay uvicorn app.main:app --reload
+uv run alembic upgrade head      # migrate
+uv run python scripts/seed.py    # ~20 saved_items for agent development
+uv run pytest                    # tripwires
+uv run ruff check . && uv run ruff format .    # lint
+PROVIDER_MODE=replay uv run uvicorn app.main:app --reload
 ```
 
 `PROVIDER_MODE` defaults to `replay`. Setting `live` or `record` requires approval — see §0.
+
+### Environment variables
+
+`.env` at the repo root; `.env.example` lists the full set. Required in every
+environment:
+
+| Variable | Purpose | Default |
+|---|---|---|
+| `DATABASE_URL` | Postgres. `postgres://` is normalized to `postgresql://` | local docker compose |
+| `REDIS_URL` | Cache + quota + arq. **Must be set on both the web service and the worker** — an unset worker silently gets its own empty cache and no quota ceiling | `redis://localhost:6379/0` |
+| `PROVIDER_MODE` | `replay` \| `record` \| `live` | `replay` |
+| `SESSION_SECRET` | Signed session cookies | dev placeholder |
+| `INGEST_BEARER_TOKEN` | `POST /ingest` auth, rotatable | dev placeholder |
+| `SERPAPI_API_KEY` | Flights, hotels, Tripadvisor, events | unset |
+| `OMKAR_API_KEY` | Airbnb (`API-Key` header, exact casing) | unset |
+| `GOOGLE_PLACES_API_KEY` | Places API (New) | unset |
+| `ANTHROPIC_API_KEY` | Agent model | unset |
+| `OPENAI_API_KEY` | Embeddings only | unset |
+
+Provider keys are optional — `replay` needs none. They are `SecretStr`, so they never
+render in a repr, traceback or log line; read with `.get_secret_value()` at the call
+site. Unknown variables are ignored rather than rejected, because a deployment
+environment always carries variables this app doesn't read.

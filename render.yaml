@@ -1,0 +1,94 @@
+# Render blueprint — config only. Deploying is Shahin's call, not an agent's.
+#
+# One web service, one worker, one Postgres, one Key Value instance.
+#
+# REDIS_URL must reach BOTH services. Cache and quota are shared state: a
+# worker pointed at a different instance (or none) silently gets its own empty
+# cache and no quota ceiling at all, which is the defect this replaced.
+
+services:
+  - type: web
+    name: travel-agent-web
+    runtime: python
+    plan: starter
+    buildCommand: pip install uv && uv sync --frozen
+    # Migrations run once per deploy, before the new instance takes traffic.
+    preDeployCommand: uv run alembic upgrade head
+    startCommand: uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: travel-agent-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: travel-agent-kv
+          property: connectionString
+      - key: PROVIDER_MODE
+        value: replay          # live/record requires approval — AGENTS.md §0
+      - key: PYTHON_VERSION
+        value: "3.13"
+      # Set in the Render dashboard, not here.
+      - key: SESSION_SECRET
+        sync: false
+      - key: INGEST_BEARER_TOKEN
+        sync: false
+      - key: SERPAPI_API_KEY
+        sync: false
+      - key: OMKAR_API_KEY
+        sync: false
+      - key: GOOGLE_PLACES_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+  - type: worker
+    name: travel-agent-worker
+    runtime: python
+    plan: starter
+    buildCommand: pip install uv && uv sync --frozen
+    # No preDeployCommand: the web service owns migrations. Two services
+    # running `alembic upgrade head` concurrently is how you get lock contention.
+    startCommand: uv run arq app.worker.WorkerSettings
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: travel-agent-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: travel-agent-kv
+          property: connectionString
+      - key: PROVIDER_MODE
+        value: replay
+      - key: PYTHON_VERSION
+        value: "3.13"
+      - key: SERPAPI_API_KEY
+        sync: false
+      - key: OMKAR_API_KEY
+        sync: false
+      - key: GOOGLE_PLACES_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+
+databases:
+  - name: travel-agent-db
+    plan: basic-256mb
+    postgresMajorVersion: "17"      # PostGIS + pgvector
+
+# The free Key Value instance is in-memory and wiped on restart. That is
+# accounted for: a lost cache is a miss, lost quota counters fail open for at
+# most an hour, and veto timers survive because they are rows in `approvals`,
+# not Redis entries. No persistence work needed.
+keyValue:
+  - name: travel-agent-kv
+    plan: free
+    ipAllowList: []               # private network only

@@ -4,6 +4,7 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.models.db import Base
+from app.shared.config import settings
 
 # Alembic Config object
 config = context.config
@@ -11,6 +12,19 @@ config = context.config
 # Set up logging
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
+
+# The connection URL comes from DATABASE_URL via settings, never from
+# alembic.ini. A hardcoded ini URL means `alembic upgrade head` migrates
+# localhost no matter where it runs — including the Render pre-deploy hook,
+# where it would silently target the wrong database or simply fail.
+#
+# `database_url_sync` also names the driver (`postgresql+psycopg://`). A bare
+# `postgresql://` makes SQLAlchemy reach for psycopg2, which this project does
+# not install.
+#
+# `%` is escaped because set_main_option runs the value through ConfigParser
+# interpolation, and managed-Postgres passwords are routinely percent-encoded.
+config.set_main_option("sqlalchemy.url", settings.database_url_sync.replace("%", "%%"))
 
 # Target metadata for autogenerate
 target_metadata = Base.metadata

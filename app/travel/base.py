@@ -11,10 +11,12 @@ from datetime import date
 from typing import Protocol, runtime_checkable
 
 from app.models.types import (
+    BookingRequest,
     NormalizedActivity,
     NormalizedFlight,
     NormalizedLodging,
     NormalizedPlace,
+    Priced,
 )
 from app.shared.quota import QuotaExceeded
 
@@ -66,11 +68,23 @@ class ProviderAdapter(Protocol):
         | list[NormalizedPlace]
         | list[NormalizedActivity]
         | QuotaExceeded
-    ):
+    ): ...
+
+    async def resolve(self, ref: str) -> BookingRequest:
+        """Return a bookable request for one specific selection.
+
+        Called by the `resolve_booking_options` node on the transition into
+        `item_pending` — never during exploration. Booking options are never
+        cached.
+        """
         ...
 
-    async def resolve(self, ref: str) -> ...:
-        ...
+    async def reprice(self, ref: str) -> Priced:
+        """Return the current price for a previously selected option.
 
-    async def reprice(self, ref: str) -> ...:
+        Called by the `reprice` node unconditionally before every handoff,
+        regardless of cache or recency (US-029). Adapters must not consult the
+        cache here — a cached fare is exactly the fiction this call exists to
+        rule out.
+        """
         ...

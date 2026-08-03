@@ -1,1 +1,23 @@
+# Secrets — never committed. In this worktree `.env` is a symlink to the
+# primary checkout's copy.
 .env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Tooling caches
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+
+# OS
+.DS_Store
+
+# fixtures/cassettes/ is deliberately NOT ignored. Shared fixtures are why a
+# fresh worktree can run tests immediately.
