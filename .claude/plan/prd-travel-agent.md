@@ -283,7 +283,7 @@ so I can find an anomalous turn and pull the full state from its checkpoint.
 
 #### US-026: Approval state machine
 **Acceptance Criteria:**
-- [ ] States: `draft → plan_pending → plan_approved → item_pending → item_approved | vetoed | stale`
+- [ ] States: `draft → plan_pending → plan_approved → item_pending → item_approved | vetoed | stale | unpriceable`
 - [ ] Only actionable items enter `item_pending`
 - [ ] Plan approval covers the whole itinerary including reference items
 - [ ] Veto returns the plan to the agent with the reason attached
@@ -304,11 +304,31 @@ so I can find an anomalous turn and pull the full state from its checkpoint.
 - [ ] An escape-hatch link to Google Flights for the same itinerary is always shown
 
 #### US-029: Re-price
+**Description:** As a user, I want the price re-checked immediately before every handoff so the number I approved is the number I pay.
+
+**Three outcomes.** `reprice()` returns a `Priced`, or it fails. A failure is not a price of zero and not a silent pass — see US-029a.
+
 **Acceptance Criteria:**
 - [ ] Runs unconditionally before every handoff, regardless of cache or recency
+- [ ] Comparison routes through the `price_drift` helper — never an inline subtraction, so the `price_unit` guard applies
 - [ ] Itinerary gone, or price moved more than 5% → item becomes `stale` and returns to the agent
 - [ ] Threshold configurable
-- [ ] Handoff is impossible without a passing re-price
+- [ ] Handoff is impossible without a `Priced` result inside threshold
+
+#### US-029a: Unpriceable re-price
+**Description:** As a user, I want to be told when the price can't be checked at all, rather than seeing a stale number or a generic error.
+
+**Why this is separate from `stale`.** `stale` means *the price moved, here's the new one, re-approve* — the agent can re-search and resolve it. An unpriceable item means *we cannot determine the price*, which no amount of re-searching fixes. Routing it back to the agent invites a retry loop against a provider that is down. Airbnb's dated details endpoint returns HTTP 500 as documented expected behaviour (Appendix D), so this is a regular state, not an exceptional one.
+
+**Acceptance Criteria:**
+- [ ] `reprice()` returning a provider error moves the item to `unpriceable`, **not** `stale`
+- [ ] `unpriceable` blocks handoff exactly as `stale` does
+- [ ] The item is **not** returned to the agent for re-search
+- [ ] The reason is surfaced to the user, naming the provider and the cause — not a generic failure
+- [ ] The user may retry manually; there is no automatic retry loop
+- [ ] An item may leave `unpriceable` on a later successful re-price
+- [ ] A re-price error is never treated as a passing re-price under any code path
+- [ ] Verify in browser using dev-browser skill
 
 #### US-030: Handoff endpoint
 **Spike findings (Appendix D):** every vendor tested used POST — 34 of 34 options across both routes. POSTing `post_data` to `https://www.google.com/travel/clk/f` returns HTTP 200 whose body is an HTML `<meta refresh>` redirect, **not** a 3xx. The GET branch is retained but is currently dead code.
@@ -421,6 +441,8 @@ so I can find an anomalous turn and pull the full state from its checkpoint.
 - **FR-25:** The system must state in the UI that no notification is sent when a veto window opens.
 - **FR-26:** The system must run `reprice` before every handoff regardless of cache state or recency.
 - **FR-27:** The system must mark an item `stale` and return it to the agent when re-pricing finds it gone or moved more than a configurable threshold (default 5%).
+- **FR-27a:** The system must mark an item `unpriceable` when re-pricing fails to return a price, block handoff, surface the provider and reason, and not return the item to the agent for re-search.
+- **FR-27b:** The system must perform every re-price comparison through the shared drift helper so that mismatched price units raise rather than producing a false drift.
 - **FR-28:** The system must resolve booking options only on transition into `item_pending`.
 - **FR-29:** The system must label every booking-option list as potentially incomplete and provide an escape-hatch link.
 
@@ -461,6 +483,7 @@ so I can find an anomalous turn and pull the full state from its checkpoint.
 - **No third user, sharing, roles, or invites.**
 - **No embedding of structured data.** Only `vibe_text` is vectorized.
 - **No edit-diff pipeline.** The edited final trip is the training label.
+- **No automatic retry on an unpriceable item.** A provider outage is surfaced, not retried in a loop.
 
 ---
 
