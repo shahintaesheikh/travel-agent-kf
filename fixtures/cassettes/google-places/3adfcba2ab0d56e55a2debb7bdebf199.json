@@ -1,0 +1,39 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "https://places.googleapis.com/v1/places/ChIJc7cVJl40GQ0RA0RiA1YkFRk",
+    "params": {},
+    "headers": {
+      "host": "places.googleapis.com",
+      "accept": "*/*",
+      "accept-encoding": "gzip, deflate, zstd",
+      "connection": "keep-alive",
+      "user-agent": "python-httpx/0.28.1",
+      "x-goog-api-key": "unused",
+      "x-goog-fieldmask": "id,displayName,formattedAddress,location,rating,priceLevel,nationalPhoneNumber,googleMapsUri",
+      "content-type": "application/json"
+    }
+  },
+  "status": 200,
+  "headers": {
+    "content-length": "407",
+    "content-type": "application/json"
+  },
+  "body": {
+    "name": "places/ChIJc7cVJl40GQ0RA0RiA1YkFRk",
+    "id": "ChIJc7cVJl40GQ0RA0RiA1YkFRk",
+    "displayName": {
+      "text": "Cervejaria Ramiro",
+      "languageCode": "en"
+    },
+    "formattedAddress": "Av. Almirante Reis 1, 1150-007 Lisboa, Portugal",
+    "location": {
+      "latitude": 38.7223,
+      "longitude": -9.1355
+    },
+    "rating": 4.5,
+    "priceLevel": "PRICE_LEVEL_MODERATE",
+    "nationalPhoneNumber": "218 851 024",
+    "googleMapsUri": "https://maps.google.com/?cid=1234567890"
+  }
+}
