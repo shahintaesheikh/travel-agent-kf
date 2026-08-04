@@ -1,0 +1,29 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "listing_id": "222",
+    "name": "Machiya townhouse",
+    "listing_url": "https://www.airbnb.com/rooms/222",
+    "location": "Taito City, Tokyo, Japan",
+    "host_id": 999,
+    "is_available": false,
+    "unavailability_reason": "Minimum stay of 5 nights",
+    "cancellation_terms": [
+      "Free cancellation for 48 hours"
+    ],
+    "pricing": {
+      "rate": 361,
+      "qualifier": "For 4 nights",
+      "total": 361.43,
+      "priceItems": [
+        {
+          "title": "4 nights x $90.36",
+          "amount": 361.43
+        }
+      ]
+    }
+  }
+}

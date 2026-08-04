@@ -1,0 +1,31 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "search_metadata": {
+      "id": "replay-hotels-single",
+      "status": "Success"
+    },
+    "search_information": {
+      "hotels_results_state": "Showing results for property details"
+    },
+    "name": "Park Hyatt Tokyo",
+    "property_token": "TOKEN_PH",
+    "link": "https://parkhyatt.example/tokyo?scid=xyz",
+    "address": "3-7-1-2 Nishi Shinjuku, Tokyo",
+    "phone": "+81 3-5322-1234",
+    "phone_link": "tel:+81353221234",
+    "rate_per_night": {
+      "lowest": "$620",
+      "extracted_lowest": 620
+    },
+    "total_rate": {
+      "lowest": "$2,480",
+      "extracted_lowest": 2480
+    },
+    "overall_rating": 4.6,
+    "reviews": 4210
+  }
+}

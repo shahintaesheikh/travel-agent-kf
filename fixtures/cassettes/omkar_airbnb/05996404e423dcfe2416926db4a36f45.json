@@ -1,0 +1,86 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "total_results": 40,
+    "listings": [
+      {
+        "listing_id": 1447073736891652317,
+        "name": "Sunny loft in Shibuya",
+        "rating": 4.87,
+        "reviews_count": 214,
+        "city": "Tokyo",
+        "full_address": "Shibuya City, Tokyo, Japan",
+        "host_id": 12345,
+        "amenity_ids": [
+          1,
+          4,
+          8
+        ],
+        "cancellation_policy": "better_strict_with_grace_period",
+        "listing_url": "https://www.airbnb.com/rooms/1447073736891652317",
+        "booking_url": "https://www.airbnb.com/rooms/1447073736891652317?check_in=2027-09-10&check_out=2027-09-14&adults=2",
+        "pricing": {
+          "nightly_rate": null,
+          "total_cost": null,
+          "cost_breakdown": [
+            {
+              "label": "4 nights x $99.99",
+              "amount": 229.68
+            }
+          ]
+        }
+      },
+      {
+        "listing_id": 222,
+        "name": "Machiya townhouse",
+        "rating": 4.5,
+        "city": "Tokyo",
+        "host_id": 999,
+        "cancellation_policy": "flexible",
+        "listing_url": "https://www.airbnb.com/rooms/222",
+        "booking_url": "https://www.airbnb.com/rooms/222?check_in=2027-09-10&check_out=2027-09-14&adults=2",
+        "pricing": {
+          "nightly_rate": 331,
+          "total_cost": null,
+          "cost_breakdown": [
+            {
+              "label": "4 nights x $90.36",
+              "amount": 361.43
+            },
+            {
+              "label": "Early bird discount",
+              "amount": 30.46
+            }
+          ]
+        }
+      },
+      {
+        "listing_id": 333,
+        "name": "No price listing",
+        "rating": 4.2,
+        "listing_url": "https://www.airbnb.com/rooms/333",
+        "booking_url": "https://www.airbnb.com/rooms/333?check_in=2027-09-10&check_out=2027-09-14&adults=2",
+        "pricing": {
+          "nightly_rate": null,
+          "total_cost": null,
+          "cost_breakdown": []
+        }
+      },
+      {
+        "listing_id": 444,
+        "name": "Undated URL listing",
+        "rating": 4.0,
+        "listing_url": "https://www.airbnb.com/rooms/444",
+        "booking_url": "https://www.airbnb.com/rooms/444?check_in=&check_out=&adults=2",
+        "pricing": {
+          "nightly_rate": null,
+          "total_cost": 400.0,
+          "cost_breakdown": []
+        }
+      }
+    ]
+  }
+}

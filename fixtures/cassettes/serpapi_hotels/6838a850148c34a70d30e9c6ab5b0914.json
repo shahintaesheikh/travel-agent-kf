@@ -1,0 +1,135 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "search_metadata": {
+      "id": "replay-hotels-tokyo",
+      "status": "Success"
+    },
+    "search_parameters": {
+      "engine": "google_hotels",
+      "q": "Tokyo",
+      "check_in_date": "2027-09-10",
+      "check_out_date": "2027-09-14",
+      "adults": 2,
+      "currency": "USD"
+    },
+    "search_information": {
+      "total_results": 264
+    },
+    "ads": [
+      {
+        "name": "Sponsored Inn Shinjuku",
+        "link": "https://www.google.com/aclk?sa=l&ai=SPONSORED",
+        "property_token": "TOKEN_AD",
+        "hotel_class": 5,
+        "overall_rating": 4.2,
+        "rate_per_night": {
+          "lowest": "$99",
+          "extracted_lowest": 99
+        }
+      }
+    ],
+    "brands": [
+      {
+        "id": 33,
+        "name": "Marriott International"
+      }
+    ],
+    "properties": [
+      {
+        "type": "hotel",
+        "name": "Hotel Alpha Tokyo",
+        "property_token": "TOKEN_A",
+        "link": "https://hotel-alpha.example/tokyo?scid=abc123",
+        "gps_coordinates": {
+          "latitude": 35.6812,
+          "longitude": 139.7671
+        },
+        "check_in_time": "3:00 PM",
+        "check_out_time": "11:00 AM",
+        "rate_per_night": {
+          "lowest": "$275",
+          "extracted_lowest": 275,
+          "before_taxes_fees": "$229",
+          "extracted_before_taxes_fees": 229
+        },
+        "total_rate": {
+          "lowest": "$1,100",
+          "extracted_lowest": 1100,
+          "before_taxes_fees": "$916",
+          "extracted_before_taxes_fees": 916
+        },
+        "prices": [
+          {
+            "source": "Vio.com",
+            "logo": "https://www.gstatic.com/travel-hotels/vio.png",
+            "num_guests": 2,
+            "rate_per_night": {
+              "lowest": "$280",
+              "extracted_lowest": 280
+            }
+          }
+        ],
+        "hotel_class": "5-star hotel",
+        "extracted_hotel_class": 5,
+        "overall_rating": 4.4355693,
+        "reviews": 3120,
+        "free_cancellation": true,
+        "free_cancellation_until_date": "2027-09-08",
+        "nearby_places": [
+          {
+            "name": "Tokyo Station",
+            "transportations": [
+              {
+                "type": "Walking",
+                "duration": "12 min"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "hotel",
+        "name": "Hotel Beta Ginza",
+        "property_token": "TOKEN_B",
+        "link": "https://hotel-beta.example/ginza",
+        "total_rate": {
+          "lowest": "$800",
+          "extracted_lowest": 800
+        },
+        "hotel_class": "4-star hotel",
+        "extracted_hotel_class": 4,
+        "overall_rating": 4.1,
+        "reviews": 890
+      },
+      {
+        "type": "vacation rental",
+        "name": "Hotel Gamma Asakusa",
+        "property_token": "TOKEN_C",
+        "link": "https://hotel-gamma.example",
+        "overall_rating": 3.9,
+        "essential_info": [
+          "Sleeps 4",
+          "2 bedrooms"
+        ]
+      },
+      {
+        "type": "hotel",
+        "name": "Hotel Delta Ueno",
+        "property_token": "TOKEN_D",
+        "rate_per_night": {
+          "lowest": "$100",
+          "extracted_lowest": 100
+        },
+        "overall_rating": 4.0
+      }
+    ],
+    "serpapi_pagination": {
+      "current_from": 1,
+      "current_to": 4
+    }
+  }
+}
