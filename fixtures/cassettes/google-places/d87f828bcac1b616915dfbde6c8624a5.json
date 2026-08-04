@@ -1,0 +1,99 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "https://places.googleapis.com/v1/places:searchText",
+    "params": {},
+    "headers": {
+      "host": "places.googleapis.com",
+      "accept": "*/*",
+      "accept-encoding": "gzip, deflate, zstd",
+      "connection": "keep-alive",
+      "user-agent": "python-httpx/0.28.1",
+      "x-goog-api-key": "unused",
+      "x-goog-fieldmask": "places.id,places.displayName,places.formattedAddress,places.location,places.rating,places.priceLevel,places.nationalPhoneNumber,places.googleMapsUri,nextPageToken",
+      "content-type": "application/json",
+      "content-length": "51"
+    }
+  },
+  "status": 200,
+  "headers": {
+    "content-length": "1610",
+    "content-type": "application/json"
+  },
+  "body": {
+    "places": [
+      {
+        "name": "places/ChIJc7cVJl40GQ0RA0RiA1YkFRk",
+        "id": "ChIJc7cVJl40GQ0RA0RiA1YkFRk",
+        "displayName": {
+          "text": "Cervejaria Ramiro",
+          "languageCode": "en"
+        },
+        "formattedAddress": "Av. Almirante Reis 1, 1150-007 Lisboa, Portugal",
+        "location": {
+          "latitude": 38.7223,
+          "longitude": -9.1355
+        },
+        "rating": 4.5,
+        "priceLevel": "PRICE_LEVEL_MODERATE",
+        "nationalPhoneNumber": "218 851 024",
+        "googleMapsUri": "https://maps.google.com/?cid=1234567890"
+      },
+      {
+        "name": "places/ChIJVeIRDXk0GQ0RfHiI9PxlkVU",
+        "id": "ChIJVeIRDXk0GQ0RfHiI9PxlkVU",
+        "displayName": {
+          "text": "Time Out Market Lisboa",
+          "languageCode": "en"
+        },
+        "formattedAddress": "Av. 24 de Julho 49, 1200-479 Lisboa, Portugal",
+        "location": {
+          "latitude": 38.7071,
+          "longitude": -9.1459
+        },
+        "rating": 4.4,
+        "priceLevel": "PRICE_LEVEL_INEXPENSIVE",
+        "googleMapsUri": "https://maps.google.com/?cid=2234567890"
+      },
+      {
+        "name": "places/ChIJmY0jQ0k0GQ0R9EiVsFqTe1o",
+        "id": "ChIJmY0jQ0k0GQ0R9EiVsFqTe1o",
+        "displayName": {
+          "text": "Taberna Sem Nome",
+          "languageCode": "en"
+        },
+        "formattedAddress": "R. dos Bacalhoeiros 12, 1100-068 Lisboa, Portugal",
+        "location": {
+          "latitude": 38.7095,
+          "longitude": -9.1338
+        }
+      },
+      {
+        "name": "places/ChIJnoGeometry00000000000000",
+        "id": "ChIJnoGeometry00000000000000",
+        "displayName": {
+          "text": "Ghost Kitchen",
+          "languageCode": "en"
+        },
+        "formattedAddress": "Lisboa, Portugal",
+        "rating": 3.9
+      },
+      {
+        "name": "places/ChIJ4wFreePlace000000000000000",
+        "id": "ChIJ4wFreePlace000000000000000",
+        "displayName": {
+          "text": "Miradouro da Graca Kiosk",
+          "languageCode": "en"
+        },
+        "formattedAddress": "Calcada da Graca, 1170-165 Lisboa, Portugal",
+        "location": {
+          "latitude": 38.7157,
+          "longitude": -9.13
+        },
+        "rating": 4.6,
+        "priceLevel": "PRICE_LEVEL_FREE",
+        "nationalPhoneNumber": "218 873 000"
+      }
+    ]
+  }
+}

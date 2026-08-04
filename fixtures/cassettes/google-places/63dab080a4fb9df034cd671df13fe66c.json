@@ -1,0 +1,66 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "https://places.googleapis.com/v1/places:searchText",
+    "params": {},
+    "headers": {
+      "host": "places.googleapis.com",
+      "accept": "*/*",
+      "accept-encoding": "gzip, deflate, zstd",
+      "connection": "keep-alive",
+      "user-agent": "python-httpx/0.28.1",
+      "x-goog-api-key": "unused",
+      "x-goog-fieldmask": "places.id,places.displayName,places.formattedAddress,places.location",
+      "content-type": "application/json",
+      "content-length": "38"
+    }
+  },
+  "status": 200,
+  "headers": {
+    "content-length": "779",
+    "content-type": "application/json"
+  },
+  "body": {
+    "places": [
+      {
+        "name": "places/ChIJChainA000000000000000000",
+        "id": "ChIJChainA000000000000000000",
+        "displayName": {
+          "text": "Starbucks",
+          "languageCode": "en"
+        },
+        "formattedAddress": "R. Augusta 100, 1100-053 Lisboa, Portugal",
+        "location": {
+          "latitude": 38.711,
+          "longitude": -9.1385
+        }
+      },
+      {
+        "name": "places/ChIJChainB000000000000000000",
+        "id": "ChIJChainB000000000000000000",
+        "displayName": {
+          "text": "Starbucks",
+          "languageCode": "en"
+        },
+        "formattedAddress": "Av. da Liberdade 200, 1250-147 Lisboa, Portugal",
+        "location": {
+          "latitude": 38.722,
+          "longitude": -9.145
+        }
+      },
+      {
+        "name": "places/ChIJChainC000000000000000000",
+        "id": "ChIJChainC000000000000000000",
+        "displayName": {
+          "text": "Starbucks",
+          "languageCode": "en"
+        },
+        "formattedAddress": "Aeroporto de Lisboa, 1700-008 Lisboa, Portugal",
+        "location": {
+          "latitude": 38.7742,
+          "longitude": -9.1342
+        }
+      }
+    ]
+  }
+}

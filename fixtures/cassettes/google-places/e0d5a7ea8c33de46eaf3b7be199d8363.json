@@ -1,0 +1,53 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "https://places.googleapis.com/v1/places:searchText",
+    "params": {},
+    "headers": {
+      "host": "places.googleapis.com",
+      "accept": "*/*",
+      "accept-encoding": "gzip, deflate, zstd",
+      "connection": "keep-alive",
+      "user-agent": "python-httpx/0.28.1",
+      "x-goog-api-key": "unused",
+      "x-goog-fieldmask": "places.id,places.displayName,places.formattedAddress,places.location",
+      "content-type": "application/json",
+      "content-length": "52"
+    }
+  },
+  "status": 200,
+  "headers": {
+    "content-length": "543",
+    "content-type": "application/json"
+  },
+  "body": {
+    "places": [
+      {
+        "name": "places/ChIJVeIRDXk0GQ0RfHiI9PxlkVU",
+        "id": "ChIJVeIRDXk0GQ0RfHiI9PxlkVU",
+        "displayName": {
+          "text": "Time Out Market Lisboa",
+          "languageCode": "en"
+        },
+        "formattedAddress": "Av. 24 de Julho 49, 1200-479 Lisboa, Portugal",
+        "location": {
+          "latitude": 38.7071,
+          "longitude": -9.1459
+        }
+      },
+      {
+        "name": "places/ChIJOtherMarket0000000000000",
+        "id": "ChIJOtherMarket0000000000000",
+        "displayName": {
+          "text": "Mercado da Ribeira",
+          "languageCode": "en"
+        },
+        "formattedAddress": "Av. 24 de Julho, 1200-479 Lisboa, Portugal",
+        "location": {
+          "latitude": 38.7069,
+          "longitude": -9.1462
+        }
+      }
+    ]
+  }
+}
