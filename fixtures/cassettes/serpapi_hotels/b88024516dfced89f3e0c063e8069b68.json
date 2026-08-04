@@ -1,0 +1,36 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "search_metadata": {
+      "id": "replay-hotels-property",
+      "status": "Success"
+    },
+    "name": "Hotel Alpha Tokyo",
+    "property_token": "TOKEN_A",
+    "link": "https://hotel-alpha.example/tokyo?scid=abc123",
+    "rate_per_night": {
+      "lowest": "$289",
+      "extracted_lowest": 289
+    },
+    "total_rate": {
+      "lowest": "$1,156",
+      "extracted_lowest": 1156
+    },
+    "typical_price_range": {
+      "lowest": "$240",
+      "highest": "$410"
+    },
+    "overall_rating": 4.4355693,
+    "rooms": [
+      {
+        "name": "Deluxe King",
+        "rate_per_night": {
+          "extracted_lowest": 289
+        }
+      }
+    ]
+  }
+}

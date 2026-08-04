@@ -1,0 +1,31 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "listing_id": "1447073736891652317",
+    "name": "Sunny loft in Shibuya",
+    "listing_url": "https://www.airbnb.com/rooms/1447073736891652317",
+    "location": "Shibuya, Tokyo, Japan",
+    "host_id": "12345",
+    "is_available": true,
+    "unavailability_reason": null,
+    "cancellation_terms": [
+      "Free cancellation before Sep 5",
+      "Cancel before check-in for a partial refund"
+    ],
+    "amenity_ids": [],
+    "pricing": {
+      "rate": 340,
+      "qualifier": "For 4 nights",
+      "total": 339.3,
+      "priceItems": [
+        {
+          "title": "4 nights x $84.83",
+          "amount": 339.3
+        }
+      ]
+    }
+  }
+}
