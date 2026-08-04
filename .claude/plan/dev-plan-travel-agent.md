@@ -166,7 +166,7 @@ Depend on S1 only. Disjoint files. Widest point in the plan.
 
 ### Also startable now
 
-**B1 · Frontend shell** — owns `web/` entirely, depends on the OpenAPI stub only. Chat SSE view, day/slot canvas, actionable vs reference styling, `price_basis` + observation time on every price, mocked API. Done when US-023, US-024 render against mocks.
+**B1 · Frontend shell** — **IGNORE THIS: frontend will be done in separate repo** owns `web/` entirely, depends on the OpenAPI stub only. Chat SSE view, day/slot canvas, actionable vs reference styling, `price_basis` + observation time on every price, mocked API. Done when US-023, US-024 render against mocks.
 
 **D1 · Trips module** — owns `app/trips/`. Lifecycle states, shape metrics as a pure SQL aggregate, confirmation endpoints. Zero agent dependency. Done when US-034, US-035.
 
