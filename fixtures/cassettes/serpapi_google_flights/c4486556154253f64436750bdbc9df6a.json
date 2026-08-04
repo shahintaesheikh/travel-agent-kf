@@ -1,0 +1,145 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "search_metadata": {
+      "id": "spike-returns-lx",
+      "status": "Success"
+    },
+    "search_parameters": {
+      "engine": "google_flights"
+    },
+    "best_flights": [
+      {
+        "flights": [
+          {
+            "departure_airport": {
+              "name": "London Heathrow Airport",
+              "id": "LHR",
+              "time": "2027-03-20 10:15"
+            },
+            "arrival_airport": {
+              "name": "Zurich Airport",
+              "id": "ZRH",
+              "time": "2027-03-20 13:00"
+            },
+            "duration": 105,
+            "airplane": "Airbus A220",
+            "airline": "SWISS",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LX.png",
+            "travel_class": "Economy",
+            "flight_number": "LX 317",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          },
+          {
+            "departure_airport": {
+              "name": "Zurich Airport",
+              "id": "ZRH",
+              "time": "2027-03-20 14:40"
+            },
+            "arrival_airport": {
+              "name": "Dubai International Airport",
+              "id": "DXB",
+              "time": "2027-03-20 23:10"
+            },
+            "duration": 390,
+            "airplane": "Boeing 777",
+            "airline": "SWISS",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LX.png",
+            "travel_class": "Economy",
+            "flight_number": "LX 242",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          }
+        ],
+        "layovers": [
+          {
+            "duration": 100,
+            "name": "Zurich Airport",
+            "id": "ZRH"
+          }
+        ],
+        "total_duration": 595,
+        "carbon_emissions": {
+          "this_flight": 412000,
+          "typical_for_this_route": 430000,
+          "difference_percent": -4
+        },
+        "price": 640,
+        "type": "Round trip",
+        "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LX.png",
+        "departure_token": ""
+      },
+      {
+        "flights": [
+          {
+            "departure_airport": {
+              "name": "London Heathrow Airport",
+              "id": "LHR",
+              "time": "2027-03-20 13:30"
+            },
+            "arrival_airport": {
+              "name": "Dubai International Airport",
+              "id": "DXB",
+              "time": "2027-03-20 23:55"
+            },
+            "duration": 385,
+            "airplane": "Airbus A380",
+            "airline": "Emirates",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/EK.png",
+            "travel_class": "Economy",
+            "flight_number": "EK 002",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          }
+        ],
+        "layovers": [],
+        "total_duration": 385,
+        "carbon_emissions": {
+          "this_flight": 412000,
+          "typical_for_this_route": 430000,
+          "difference_percent": -4
+        },
+        "price": 690,
+        "type": "Round trip",
+        "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LX.png",
+        "departure_token": ""
+      }
+    ],
+    "other_flights": [],
+    "price_insights": {
+      "lowest_price": 640,
+      "price_level": "typical",
+      "typical_price_range": [
+        540,
+        760
+      ],
+      "price_history": [
+        [
+          1799000000,
+          612
+        ],
+        [
+          1799086400,
+          655
+        ],
+        [
+          1799172800,
+          640
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "search_metadata": {
+      "id": "jfk-lax-undercovered",
+      "status": "Success"
+    },
+    "search_parameters": {
+      "engine": "google_flights"
+    },
+    "selected_flights": [
+      {
+        "flights": [
+          {
+            "departure_airport": {
+              "name": "John F. Kennedy International Airport",
+              "id": "JFK",
+              "time": "2027-03-10 07:30"
+            },
+            "arrival_airport": {
+              "name": "Seattle-Tacoma International Airport",
+              "id": "SEA",
+              "time": "2027-03-10 10:45"
+            },
+            "duration": 375,
+            "airplane": "Boeing 737",
+            "airline": "Alaska",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/AS.png",
+            "travel_class": "Economy",
+            "flight_number": "AS 631",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          },
+          {
+            "departure_airport": {
+              "name": "Seattle-Tacoma International Airport",
+              "id": "SEA",
+              "time": "2027-03-10 12:10"
+            },
+            "arrival_airport": {
+              "name": "Los Angeles International Airport",
+              "id": "LAX",
+              "time": "2027-03-10 14:55"
+            },
+            "duration": 165,
+            "airplane": "Boeing 737",
+            "airline": "Alaska",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/AS.png",
+            "travel_class": "Economy",
+            "flight_number": "AS 731",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          }
+        ],
+        "layovers": [
+          {
+            "duration": 85,
+            "name": "Seattle-Tacoma",
+            "id": "SEA"
+          }
+        ],
+        "total_duration": 540,
+        "carbon_emissions": {
+          "this_flight": 412000,
+          "typical_for_this_route": 430000,
+          "difference_percent": -4
+        },
+        "price": 170,
+        "type": "Round trip",
+        "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LX.png",
+        "departure_token": ""
+      }
+    ],
+    "booking_options": [
+      {
+        "together": {
+          "book_with": "Alaska",
+          "marketed_as": [
+            "AS 631",
+            "AS 731"
+          ],
+          "price": 170,
+          "option_title": "Book on Alaska",
+          "booking_request": {
+            "url": "https://www.google.com/travel/clk/f",
+            "post_data": "u=%2Fflights%2Fclk%3Fmc%3DAS631%252CAS731&hl=en&gl=us"
+          }
+        }
+      },
+      {
+        "together": {
+          "book_with": "OOJO",
+          "marketed_as": [
+            "AS 631",
+            "AS 731"
+          ],
+          "price": 174,
+          "booking_request": {
+            "url": "https://www.google.com/travel/clk/f",
+            "post_data": "u=%2Fflights%2Fclk%3Fmc%3DOOJO&hl=en&gl=us"
+          }
+        }
+      }
+    ],
+    "price_insights": {
+      "lowest_price": 344,
+      "price_level": "typical"
+    }
+  }
+}

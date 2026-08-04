@@ -1,0 +1,39 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "search_metadata": {
+      "id": "spike-sold-out",
+      "status": "Success"
+    },
+    "search_parameters": {
+      "engine": "google_flights"
+    },
+    "selected_flights": [],
+    "booking_options": [],
+    "price_insights": {
+      "lowest_price": 640,
+      "price_level": "typical",
+      "typical_price_range": [
+        540,
+        760
+      ],
+      "price_history": [
+        [
+          1799000000,
+          612
+        ],
+        [
+          1799086400,
+          655
+        ],
+        [
+          1799172800,
+          640
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "search_metadata": {
+      "id": "jfk-lax-split-only",
+      "status": "Success"
+    },
+    "search_parameters": {
+      "engine": "google_flights"
+    },
+    "selected_flights": [
+      {
+        "flights": [
+          {
+            "departure_airport": {
+              "name": "John F. Kennedy International Airport",
+              "id": "JFK",
+              "time": "2027-03-10 08:00"
+            },
+            "arrival_airport": {
+              "name": "Los Angeles International Airport",
+              "id": "LAX",
+              "time": "2027-03-10 11:25"
+            },
+            "duration": 385,
+            "airplane": "Boeing 737",
+            "airline": "Alaska",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/AS.png",
+            "travel_class": "Economy",
+            "flight_number": "AS 12",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          }
+        ],
+        "layovers": [],
+        "total_duration": 385,
+        "carbon_emissions": {
+          "this_flight": 412000,
+          "typical_for_this_route": 430000,
+          "difference_percent": -4
+        },
+        "price": 210,
+        "type": "Round trip",
+        "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LX.png",
+        "departure_token": ""
+      },
+      {
+        "flights": [
+          {
+            "departure_airport": {
+              "name": "Los Angeles International Airport",
+              "id": "LAX",
+              "time": "2027-03-15 09:05"
+            },
+            "arrival_airport": {
+              "name": "John F. Kennedy International Airport",
+              "id": "JFK",
+              "time": "2027-03-15 17:30"
+            },
+            "duration": 325,
+            "airplane": "Boeing 737",
+            "airline": "Alaska",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/AS.png",
+            "travel_class": "Economy",
+            "flight_number": "AS 1291",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          }
+        ],
+        "layovers": [],
+        "total_duration": 325,
+        "carbon_emissions": {
+          "this_flight": 412000,
+          "typical_for_this_route": 430000,
+          "difference_percent": -4
+        },
+        "price": 195,
+        "type": "Round trip",
+        "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LX.png",
+        "departure_token": ""
+      }
+    ],
+    "booking_options": [
+      {
+        "departing": {
+          "book_with": "Alaska",
+          "marketed_as": [
+            "AS 12"
+          ],
+          "price": 210,
+          "booking_request": {
+            "url": "https://www.google.com/travel/clk/f",
+            "post_data": "u=%2Fflights%2Fclk%3Fmc%3DAS12&hl=en&gl=us"
+          }
+        },
+        "returning": {
+          "book_with": "Priceline",
+          "marketed_as": [
+            "AS 1291"
+          ],
+          "price": 195,
+          "booking_request": {
+            "url": "https://www.google.com/travel/clk/f",
+            "post_data": "u=%2Fflights%2Fclk%3Fmc%3DAS1291&hl=en&gl=us"
+          }
+        }
+      }
+    ],
+    "price_insights": {
+      "lowest_price": 344,
+      "price_level": "typical"
+    }
+  }
+}
