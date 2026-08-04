@@ -1,0 +1,36 @@
+{
+  "_note": "Hand-authored from the provider skill's documented shape — not a live recording.",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "search_metadata": {
+      "id": "fixture-ta-locations",
+      "status": "Success"
+    },
+    "search_parameters": {
+      "engine": "tripadvisor_search",
+      "q": "Porto",
+      "ssrc": "A"
+    },
+    "locations": [
+      {
+        "location_id": "312478",
+        "place_type": "ATTRACTION",
+        "title": "Livraria Lello",
+        "rating": 4.1,
+        "reviews": 21044,
+        "link": "https://www.tripadvisor.com/Attraction_Review-g189180-d312478-Livraria_Lello.html"
+      },
+      {
+        "location_id": "246148",
+        "place_type": "ATTRACTION",
+        "title": "Ponte Luís I",
+        "rating": 4.8,
+        "reviews": 18201,
+        "link": "https://www.tripadvisor.com/Attraction_Review-g189180-d246148-Ponte_Luis_I.html"
+      }
+    ]
+  }
+}

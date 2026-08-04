@@ -1,0 +1,87 @@
+{
+  "_note": "Hand-authored from the provider skill's documented shape — not a live recording.",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "search_metadata": {
+      "id": "fixture-events",
+      "status": "Success"
+    },
+    "search_parameters": {
+      "engine": "google_events",
+      "q": "events in Lisbon"
+    },
+    "events_results": [
+      {
+        "title": "Fado Night at Casa de Linhares",
+        "date": {
+          "start_date": "Mar 12",
+          "when": "Thu 8:00 PM"
+        },
+        "time": "8:00 PM",
+        "venue": "Casa de Linhares",
+        "address": [
+          "Beco dos Armazéns do Linho 2",
+          "Lisbon, Portugal"
+        ],
+        "price": "$45",
+        "extracted_price": 45,
+        "link": "https://www.fevo.com/event/fado-night-linhares",
+        "ticket_info": [
+          {
+            "source": "Fevo",
+            "source_icon": "https://…/fevo.png",
+            "link": "https://www.fevo.com/event/fado-night-linhares"
+          }
+        ],
+        "thumbnail": "https://…/fado.jpg"
+      },
+      {
+        "title": "Lisbon Street Art Walking Tour",
+        "date": {
+          "start_date": "Mar 14",
+          "when": "Sat 10:00 AM"
+        },
+        "venue": "Largo do Intendente",
+        "link": "https://www.eventbrite.com/e/lisbon-street-art-tour-8812"
+      },
+      {
+        "title": "Benfica vs Sporting — Liga Portugal",
+        "date": {
+          "start_date": "Mar 15",
+          "when": "Sun 6:00 PM"
+        },
+        "venue": "Estádio da Luz",
+        "price": "€40",
+        "extracted_price": 40,
+        "link": "https://www.viagogo.com/benfica-sporting-4471"
+      },
+      {
+        "title": "Feira da Ladra Night Market",
+        "date": {
+          "start_date": "Mar 13",
+          "when": "Fri 7:00 PM"
+        },
+        "ticket_info": [
+          {
+            "source": "Ticketline",
+            "link": "https://ticketline.sapo.pt/evento/feira-da-ladra-9920"
+          }
+        ]
+      },
+      {
+        "title": "Rock in Rio Lisboa",
+        "date": {
+          "start_date": "Jun 20",
+          "when": "Sat 4:00 PM"
+        },
+        "venue": "Parque Tejo",
+        "price": "$120",
+        "extracted_price": 120,
+        "link": "https://rockinriolisboa.sapo.pt/tickets"
+      }
+    ]
+  }
+}

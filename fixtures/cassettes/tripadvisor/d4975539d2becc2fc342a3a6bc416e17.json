@@ -1,0 +1,75 @@
+{
+  "_note": "Hand-authored from the provider skill's documented shape — not a live recording.",
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "search_metadata": {
+      "id": "fixture-ta-places",
+      "status": "Success"
+    },
+    "search_parameters": {
+      "engine": "tripadvisor_search",
+      "q": "Lisbon",
+      "ssrc": "A"
+    },
+    "places": [
+      {
+        "location_id": "1152144",
+        "place_type": "ATTRACTION",
+        "title": "Oceanário de Lisboa",
+        "rating": 4.5,
+        "reviews": 28114,
+        "description": "One of the largest indoor aquariums in Europe.",
+        "thumbnail": "https://media-cdn.tripadvisor.com/media/photo-s/1a/2b/oceanario.jpg",
+        "link": "https://www.tripadvisor.com/Attraction_Review-g189158-d1152144-Oceanario_de_Lisboa.html",
+        "serpapi_link": "https://serpapi.com/search.json?engine=tripadvisor_place&location_id=1152144"
+      },
+      {
+        "location_id": "10371312",
+        "place_type": "ATTRACTION",
+        "title": "Miradouro da Senhora do Monte",
+        "rating": 4.7,
+        "reviews": 3120,
+        "link": "https://www.tripadvisor.com/Attraction_Review-g189158-d10371312-Miradouro.html",
+        "serpapi_link": "https://serpapi.com/search.json?engine=tripadvisor_place&location_id=10371312"
+      },
+      {
+        "location_id": "23885120",
+        "place_type": "ATTRACTION_PRODUCT",
+        "title": "Lisbon: Tram 28 Guided Ride and Old Town Walking Tour",
+        "rating": 4.8,
+        "reviews": 942,
+        "link": "https://www.tripadvisor.com/AttractionProductReview-g189158-d23885120-Lisbon_Tram_28_Guided_Ride.html",
+        "serpapi_link": "https://serpapi.com/search.json?engine=tripadvisor_place&location_id=23885120"
+      },
+      {
+        "location_id": "17610101",
+        "place_type": "ATTRACTION_PRODUCT",
+        "title": "Sintra and Cascais Full-Day Small-Group Tour",
+        "rating": 4.6,
+        "reviews": 1580,
+        "link": "https://www.tripadvisor.com/AttractionProductReview-g189158-d17610101-Sintra_and_Cascais.html",
+        "serpapi_link": "https://serpapi.com/search.json?engine=tripadvisor_place&location_id=17610101"
+      },
+      {
+        "location_id": "693319",
+        "place_type": "EATERY",
+        "title": "Cervejaria Ramiro",
+        "rating": 4.5,
+        "link": "https://www.tripadvisor.com/Restaurant_Review-g189158-d693319-Ramiro.html"
+      },
+      {
+        "location_id": "189158",
+        "place_type": "GEO",
+        "title": "Lisbon",
+        "link": "https://www.tripadvisor.com/Tourism-g189158-Lisbon.html"
+      },
+      {
+        "location_id": "27044991",
+        "location_type": "ATTRACTION"
+      }
+    ]
+  }
+}
