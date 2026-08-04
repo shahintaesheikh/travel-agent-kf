@@ -1,0 +1,278 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "search_metadata": {
+      "id": "spike-dxb-lhr-options",
+      "status": "Success"
+    },
+    "search_parameters": {
+      "engine": "google_flights"
+    },
+    "selected_flights": [
+      {
+        "flights": [
+          {
+            "departure_airport": {
+              "name": "Dubai International Airport",
+              "id": "DXB",
+              "time": "2027-03-10 01:50"
+            },
+            "arrival_airport": {
+              "name": "Zurich Airport",
+              "id": "ZRH",
+              "time": "2027-03-10 06:20"
+            },
+            "duration": 390,
+            "airplane": "Boeing 777",
+            "airline": "SWISS",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LX.png",
+            "travel_class": "Economy",
+            "flight_number": "LX 243",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          },
+          {
+            "departure_airport": {
+              "name": "Zurich Airport",
+              "id": "ZRH",
+              "time": "2027-03-10 07:55"
+            },
+            "arrival_airport": {
+              "name": "London Heathrow Airport",
+              "id": "LHR",
+              "time": "2027-03-10 08:50"
+            },
+            "duration": 115,
+            "airplane": "Airbus A220",
+            "airline": "SWISS",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LX.png",
+            "travel_class": "Economy",
+            "flight_number": "LX 316",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          }
+        ],
+        "layovers": [
+          {
+            "duration": 95,
+            "name": "Zurich Airport",
+            "id": "ZRH"
+          }
+        ],
+        "total_duration": 600,
+        "carbon_emissions": {
+          "this_flight": 412000,
+          "typical_for_this_route": 430000,
+          "difference_percent": -4
+        },
+        "price": 640,
+        "type": "Round trip",
+        "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LX.png",
+        "departure_token": ""
+      },
+      {
+        "flights": [
+          {
+            "departure_airport": {
+              "name": "London Heathrow Airport",
+              "id": "LHR",
+              "time": "2027-03-20 10:15"
+            },
+            "arrival_airport": {
+              "name": "Zurich Airport",
+              "id": "ZRH",
+              "time": "2027-03-20 13:00"
+            },
+            "duration": 105,
+            "airplane": "Airbus A220",
+            "airline": "SWISS",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LX.png",
+            "travel_class": "Economy",
+            "flight_number": "LX 317",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          },
+          {
+            "departure_airport": {
+              "name": "Zurich Airport",
+              "id": "ZRH",
+              "time": "2027-03-20 14:40"
+            },
+            "arrival_airport": {
+              "name": "Dubai International Airport",
+              "id": "DXB",
+              "time": "2027-03-20 23:10"
+            },
+            "duration": 390,
+            "airplane": "Boeing 777",
+            "airline": "SWISS",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LX.png",
+            "travel_class": "Economy",
+            "flight_number": "LX 242",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          }
+        ],
+        "layovers": [
+          {
+            "duration": 100,
+            "name": "Zurich Airport",
+            "id": "ZRH"
+          }
+        ],
+        "total_duration": 595,
+        "carbon_emissions": {
+          "this_flight": 412000,
+          "typical_for_this_route": 430000,
+          "difference_percent": -4
+        },
+        "price": 640,
+        "type": "Round trip",
+        "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/LX.png",
+        "departure_token": ""
+      }
+    ],
+    "booking_options": [
+      {
+        "together": {
+          "book_with": "SWISS",
+          "airline_logos": [
+            "https://www.gstatic.com/flights/airline_logos/70px/LX.png"
+          ],
+          "marketed_as": [
+            "LX243",
+            "LX316",
+            "LX317",
+            "LX242"
+          ],
+          "price": 640,
+          "local_prices": [
+            {
+              "currency": "AED",
+              "price": 2350
+            }
+          ],
+          "option_title": "Book on SWISS",
+          "extensions": [
+            "Bags and seats included"
+          ],
+          "baggage_prices": [
+            "1st checked bag: free"
+          ],
+          "booking_request": {
+            "url": "https://www.google.com/travel/clk/f",
+            "post_data": "u=%2Fflights%2Fclk%3Fmc%3DLX243%252CLX316%26dt%3D2027-03-10&tfs=CBwQAhoeEgoyMDI3LTAzLTEwagcIARIDRFhCcgcIARIDWlJI&hl=en&gl=us&curr=USD"
+          }
+        }
+      },
+      {
+        "together": {
+          "book_with": "Booking.com",
+          "marketed_as": [
+            "LX243",
+            "LX316",
+            "LX317",
+            "LX242"
+          ],
+          "price": 668,
+          "option_title": "Book on Booking.com",
+          "booking_request": {
+            "url": "https://www.google.com/travel/clk/f",
+            "post_data": "u=%2Fflights%2Fclk%3Fmc%3DBOOKING%26dt%3D2027-03-10&tfs=CBwQAhoeEgoyMDI3LTAzLTEwagcIARIDRFhC&hl=en&gl=us&curr=USD"
+          }
+        }
+      },
+      {
+        "departing": {
+          "book_with": "Expedia",
+          "marketed_as": [
+            "LX243",
+            "LX316"
+          ],
+          "price": 340,
+          "booking_request": {
+            "url": "https://www.google.com/travel/clk/f",
+            "post_data": "u=%2Fflights%2Fclk%3Fmc%3DEXPEDIA-DEP&tfs=CBwQAg&hl=en&gl=us"
+          }
+        },
+        "returning": {
+          "book_with": "Expedia",
+          "marketed_as": [
+            "LX317",
+            "LX242"
+          ],
+          "price": 355,
+          "booking_request": {
+            "url": "https://www.google.com/travel/clk/f",
+            "post_data": "u=%2Fflights%2Fclk%3Fmc%3DEXPEDIA-RET&tfs=CBwQAg&hl=en&gl=us"
+          }
+        }
+      },
+      {
+        "together": {
+          "book_with": "Kayak",
+          "price": 655,
+          "booking_request": {
+            "url": "https://www.google.com/travel/clk/f",
+            "post_data": "u=%2Fflights%2Fclk%3Fmc%3DKAYAK&hl=en&gl=us"
+          }
+        }
+      },
+      {
+        "together": {
+          "book_with": "Ghost Travel",
+          "price": 500
+        }
+      },
+      {
+        "together": {
+          "book_with": "No URL",
+          "price": 510,
+          "booking_request": {}
+        }
+      }
+    ],
+    "price_insights": {
+      "lowest_price": 640,
+      "price_level": "typical",
+      "typical_price_range": [
+        540,
+        760
+      ],
+      "price_history": [
+        [
+          1799000000,
+          612
+        ],
+        [
+          1799086400,
+          655
+        ],
+        [
+          1799172800,
+          640
+        ]
+      ]
+    },
+    "baggage_prices": {
+      "together": [
+        "1st checked bag: free"
+      ]
+    }
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "status": 200,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "search_metadata": {
+      "id": "spike-jfk-lax",
+      "status": "Success"
+    },
+    "search_parameters": {
+      "engine": "google_flights"
+    },
+    "best_flights": [
+      {
+        "flights": [
+          {
+            "departure_airport": {
+              "name": "John F. Kennedy International Airport",
+              "id": "JFK",
+              "time": "2027-03-10 08:00"
+            },
+            "arrival_airport": {
+              "name": "Los Angeles International Airport",
+              "id": "LAX",
+              "time": "2027-03-10 11:25"
+            },
+            "duration": 385,
+            "airplane": "Boeing 737",
+            "airline": "Alaska",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/AS.png",
+            "travel_class": "Economy",
+            "flight_number": "AS 12",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          }
+        ],
+        "layovers": [],
+        "total_duration": 385,
+        "price": 344,
+        "type": "One way",
+        "departure_token": "WyJDalJCVXpFeUlsMD0iXQ=="
+      }
+    ],
+    "other_flights": [
+      {
+        "flights": [
+          {
+            "departure_airport": {
+              "name": "John F. Kennedy International Airport",
+              "id": "JFK",
+              "time": "2027-03-10 14:10"
+            },
+            "arrival_airport": {
+              "name": "Los Angeles International Airport",
+              "id": "LAX",
+              "time": "2027-03-10 17:35"
+            },
+            "duration": 385,
+            "airplane": "Airbus A321",
+            "airline": "JetBlue",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/B6.png",
+            "travel_class": "Economy",
+            "flight_number": "B6 423",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          }
+        ],
+        "layovers": [],
+        "total_duration": 385,
+        "price": 361,
+        "type": "One way",
+        "departure_token": "WyJDalJDTmpReU15SmQiXQ=="
+      },
+      {
+        "flights": [
+          {
+            "departure_airport": {
+              "name": "John F. Kennedy International Airport",
+              "id": "JFK"
+            },
+            "arrival_airport": {
+              "name": "Los Angeles International Airport",
+              "id": "LAX",
+              "time": "2027-03-10 11:25"
+            },
+            "duration": 385,
+            "airplane": "Boeing 737",
+            "airline": "Alaska",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/AS.png",
+            "travel_class": "Economy",
+            "flight_number": "AS 12",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          }
+        ],
+        "total_duration": 385,
+        "price": 350,
+        "type": "One way"
+      },
+      {
+        "flights": [
+          {
+            "departure_airport": {
+              "name": "John F. Kennedy International Airport",
+              "id": "JFK",
+              "time": "2027-03-10 14:10"
+            },
+            "arrival_airport": {
+              "name": "Los Angeles International Airport",
+              "id": "LAX",
+              "time": "2027-03-10 17:35"
+            },
+            "duration": 385,
+            "airplane": "Airbus A321",
+            "airline": "JetBlue",
+            "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/B6.png",
+            "travel_class": "Economy",
+            "flight_number": "B6 423",
+            "legroom": "31 in",
+            "extensions": [
+              "Average legroom (31 in)",
+              "Wi-Fi for a fee"
+            ]
+          }
+        ],
+        "total_duration": 385,
+        "type": "One way"
+      },
+      {
+        "flights": [],
+        "total_duration": 0,
+        "price": 999,
+        "type": "One way"
+      }
+    ],
+    "price_insights": {
+      "lowest_price": 344,
+      "price_level": "low"
+    }
+  }
+}
