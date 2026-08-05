@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -)",
+      "Read(//Users/shahinsheikh/.local/bin/**)",
+      "Bash(find / -maxdepth 4 -name \"uv\" -type f -perm +111)",
+      "Bash(python3 -V)",
+      "Bash(pip3 --version)",
+      "Bash([ ! -e \"$f\" ])",
+      "Bash(exit 0)",
+      "Read(//Users/shahinsheikh/travel-agent-kf/**)",
+      "Bash(brew install *)",
+      "Bash(uv --version)",
+      "Bash(redis-server --version)",
+      "Bash(DATABASE_URL=\"postgresql://someuser:pw@some-render-host:5432/tadb\" uv run alembic upgrade head)",
+      "Bash(rm -rf /private/tmp/claude-501/-Users-shahinsheikh-travel-agent-s1-1--claude-plan/1d5dda17-2513-4a3a-a91b-7cd33f1bb1be/scratchpad/cleanco)",
+      "Bash(uv run *)",
+      "Bash(REDIS_URL=redis://localhost:6399/0 uv run pytest tests/test_places_adapter.py)"
+    ]
+  }
+}
